@@ -18,7 +18,7 @@ namespace Dockaroo.App;
 /// the taskbar merges it under the pin and shows its persistent selected state while the
 /// popup is open.
 /// </summary>
-internal sealed class PopupForm : Form
+internal sealed partial class PopupForm : Form
 {
     private const int WsExToolWindow = 0x00000080;
     private const int WsExAppWindow = 0x00040000;
@@ -98,7 +98,9 @@ internal sealed class PopupForm : Form
             // The strip that sits under the bar is cut out of the window itself, so the bar's own
             // trim is the only line there - even if Windows raises the popup above the taskbar.
             var edge = PopupGeometry.EdgeOfBar(screen.Bounds, bar.Bar);
-            Region = new Region(PopupGeometry.VisibleWhenTucked(popupSize, edge, _metrics));
+            _tuckClip = PopupGeometry.VisibleWhenTucked(popupSize, edge, _metrics);
+            ApplyTuckClip(true);
+            StartBarWatch();
         }
         else
         {
@@ -313,15 +315,15 @@ internal sealed class PopupForm : Form
 
     protected override void Dispose(bool disposing)
     {
-        var clip = disposing ? Region : null;
         if (disposing)
         {
+            StopBarWatch();
             _painter.Dispose();
         }
 
+        // The clip region is ours: WinForms disposes a Region only when another replaces it.
+        var clip = disposing ? Region : null;
         base.Dispose(disposing);
-
-        // The tuck clip region is ours (WinForms does not dispose a Region it was given).
         clip?.Dispose();
     }
 

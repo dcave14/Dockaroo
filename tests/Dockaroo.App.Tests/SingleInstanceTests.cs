@@ -53,8 +53,29 @@ public sealed class SingleInstanceTests
     }
 
     [Fact]
-    public void LaunchArguments_WithoutAGroupName_AskForNoPopup()
+    public void LaunchArguments_WithoutAGroupName_OpenTheEditor()
     {
-        Assert.Null(SingleInstance.RequestFromLaunchArguments(Array.Empty<string>()));
+        foreach (var args in new[] { Array.Empty<string>(), new[] { " " } })
+        {
+            var request = SingleInstance.RequestFromLaunchArguments(args);
+
+            Assert.NotNull(request);
+            Assert.True(request!.OpenEditor);
+            Assert.Null(request.GroupName);
+            Assert.False(request.HasCursor);
+        }
+    }
+
+    [Fact]
+    public void EditorPayload_ParsesToAnEditorRequest_AndPopupPayloadsDoNot()
+    {
+        Assert.True(SingleInstance.TryParsePopupPayload(SingleInstance.EditorPayload, out var editor));
+        Assert.True(editor.OpenEditor);
+
+        Assert.True(SingleInstance.TryParsePopupPayload("popup", out var bare));
+        Assert.False(bare.OpenEditor);
+        Assert.True(SingleInstance.TryParsePopupPayload(SingleInstance.BuildPopupPayload(new Point(1, 2), "DEV"), out var group));
+        Assert.False(group.OpenEditor);
+        Assert.Equal("DEV", group.GroupName);
     }
 }

@@ -39,13 +39,17 @@ internal static class Program
             }
 
             _ = AllowSetForegroundWindow(AsfwAny);
-            SingleInstance.TrySend(SingleInstance.BuildPopupPayload(Cursor.Position, groupName));
+
+            // A pin click carries a group name; a plain start of the exe opens the editor.
+            SingleInstance.TrySend(string.IsNullOrWhiteSpace(groupName)
+                ? SingleInstance.EditorPayload
+                : SingleInstance.BuildPopupPayload(Cursor.Position, groupName));
             return 0;
         }
 
-        // The resident takes its own command line as the first popup request: a pinned group
-        // button that starts the resident after a reboot still shows its popup on that first
-        // click. A plain start (no group name) asks for nothing, as before.
+        // The resident takes its own command line as the first request: a pinned group button
+        // that starts the resident after a reboot still shows its popup on that first click,
+        // and a plain start (no group name) opens the editor once the groups are loaded.
         var startupRequest = SingleInstance.RequestFromLaunchArguments(args);
 
         using var tray = new TrayContext();

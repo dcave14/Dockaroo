@@ -18,6 +18,9 @@ internal sealed record PopupRequest(Point Cursor, string? GroupName, bool HasCur
 {
     /// <summary>The clicked taskbar and button, located off the UI thread; null = not a taskbar click.</summary>
     public TaskbarAnchor? Taskbar { get; init; }
+
+    /// <summary>True for a plain start of the exe: open the editor instead of a popup.</summary>
+    public bool OpenEditor { get; init; }
 }
 
 /// <summary>Client side of the single-instance handoff: build the payload, signal the resident process and return.</summary>
@@ -25,6 +28,9 @@ internal static class SingleInstance
 {
     /// <summary>Payload that asks the resident instance to show the popup for the first group.</summary>
     public const string PopupPayload = "popup";
+
+    /// <summary>Payload that asks the resident instance to open the editor (a plain start of the exe).</summary>
+    public const string EditorPayload = "editor";
 
     private const string PopupPrefix = "popup:";
     private const int ConnectTimeoutMs = 5000;
@@ -47,8 +53,9 @@ internal static class SingleInstance
     }
 
     /// <summary>
-    /// Parses a payload. Accepted forms: "popup" (legacy, no cursor and no name) and
-    /// "popup:&lt;x&gt;:&lt;y&gt;:&lt;anything&gt;". Never throws; malformed input returns false.
+    /// Parses a payload. Accepted forms: "editor" (open the editor), "popup" (legacy, no
+    /// cursor and no name) and "popup:&lt;x&gt;:&lt;y&gt;:&lt;anything&gt;". Never throws;
+    /// malformed input returns false.
     /// </summary>
     public static bool TryParsePopupPayload(string? payload, out PopupRequest request)
     {
@@ -56,6 +63,12 @@ internal static class SingleInstance
         if (string.IsNullOrEmpty(payload))
         {
             return false;
+        }
+
+        if (payload == EditorPayload)
+        {
+            request = request with { OpenEditor = true };
+            return true;
         }
 
         if (payload == PopupPayload)
@@ -93,8 +106,9 @@ internal static class SingleInstance
     }
 
     /// <summary>
-    /// The popup request this process's own command line asks for, or null when it was launched
-    /// without a group name (a plain start: the resident only settles into the tray). The args
+    /// The request this process's own command line asks for: the group's popup, or - for a plain
+    /// start of the exe without a group name - the editor, so double-clicking Dockaroo.exe
+    /// actually opens the app. The args
     /// are turned into the exact payload the handoff client sends and parsed back by the same
     /// parser, so a pinned taskbar button that starts the resident after a reboot still shows
     /// its popup on that first click. The cursor position is captured at launch time.
@@ -104,15 +118,10 @@ internal static class SingleInstance
     public static PopupRequest? RequestFromLaunchArguments(string[] args, Point? cursor = null)
     {
         ArgumentNullException.ThrowIfNull(args);
-        if (args.Length == 0)
-        {
-            return null;
-        }
-
         var groupName = string.Join(' ', args);
         if (string.IsNullOrWhiteSpace(groupName))
         {
-            return null;
+            return new PopupRequest(Point.Empty, null, false) { OpenEditor = true };
         }
 
         var payload = BuildPopupPayload(cursor ?? Cursor.Position, groupName);

@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Dockaroo.App.Editor.Controls;
 using Dockaroo.Core;
 using Dockaroo.Core.Linking;
 
@@ -181,15 +182,42 @@ internal sealed partial class EditorForm
     }
 
     /// <summary>
-    /// Opens the drag-source chip for the human pin gesture (F-021: Windows 11 25H2 has no
-    /// silent pin route). The chip carries the same icon the .lnk was written with, so the
-    /// drag matches what lands on the taskbar.
+    /// Opens the taskbar shortcuts folder in File Explorer with this group's .lnk selected, so it
+    /// can be dragged onto the taskbar from there; without a .lnk yet, just the folder.
+    /// </summary>
+    private void ShowShortcutInExplorer()
+    {
+        var lnk = _savedName is null ? null : Path.Combine(ShortcutsDirectory, _savedName + ".lnk");
+        if (lnk is not null && File.Exists(lnk))
+        {
+            ShellHandoff.OpenInExplorer(ShellHandoff.ExplorerSelectArguments(lnk));
+            return;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(ShortcutsDirectory);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Explorer reports a missing folder itself.
+        }
+
+        ShellHandoff.OpenInExplorer(ShellHandoff.ExplorerFolderArguments(ShortcutsDirectory));
+    }
+
+    /// <summary>
+    /// Shows the in-editor drag card for the human pin gesture (Windows 11 has no silent pin
+    /// route). The card carries the same icon the .lnk was written with, so the drag matches
+    /// what lands on the taskbar.
     /// </summary>
     private void ShowDragChip(string groupName, string lnkPath, string? iconPath)
     {
-        var chip = new DragPinChipForm(groupName, lnkPath, LoadShortcutIcon(iconPath));
-        chip.Show(this);
+        _pinChip.ShowFor(groupName, lnkPath, LoadShortcutIcon(iconPath));
     }
+
+    /// <summary>The drag card's state (asserted by tests).</summary>
+    internal PinChipCard PinChip => _pinChip;
 
     private static Icon? LoadShortcutIcon(string? iconPath)
     {

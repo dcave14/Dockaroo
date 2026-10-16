@@ -365,6 +365,16 @@ public static class PopupGeometry
         };
     }
 
+    /// <summary>
+    /// True while the taskbar still covers the popup's tucked strip (screen coordinates): the
+    /// strip stays clipped so the bar's trim is the only line. False once an auto-hide bar has
+    /// slid away - the popup then shows its own bar-side trim instead of a cut-off edge.
+    /// </summary>
+    public static bool BarCoversTuck(Rectangle popupBounds, Rectangle bar)
+    {
+        return !bar.IsEmpty && popupBounds.IntersectsWith(bar);
+    }
+
     /// <summary>Which screen edge a taskbar rectangle is docked to (by shape, then by position).</summary>
     public static TaskbarEdge EdgeOfBar(Rectangle screenBounds, Rectangle bar)
     {

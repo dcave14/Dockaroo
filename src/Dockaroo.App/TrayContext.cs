@@ -344,6 +344,12 @@ internal sealed class TrayContext : ApplicationContext
 
     private void ShowPopup(PopupRequest request)
     {
+        if (request.OpenEditor)
+        {
+            OpenEditor(listGroups: true);
+            return;
+        }
+
         var group = ResolveGroup(request.GroupName, request);
         if (group is not null)
         {

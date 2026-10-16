@@ -33,6 +33,11 @@ Decisions open for the user: whether design/ and ico/ are committed to the repo.
 
 ## Popup placement rulings (user, confirmed live)
 
+- 2026-10-16: the popup keeps its bottom trim when an auto-hide bar drops (it looked cut off).
+  While the bar covers the tucked strip it stays clipped (one trim line); once the bar slides
+  away the clip is dropped and the popup's own trim shows. The popup still never moves.
+- 2026-10-16: double-clicking Dockaroo.exe opens the editor (payload `editor`); pin clicks still
+  open their group's popup.
 - A popup opened from a taskbar button is centred on that button, its bar-side edge tucked 2 px
   (scaled) under the taskbar so there is one trim line. TaskbarLocator reads the clicked bar's
   window rect at click time (revealed even with auto-hide) and hit-tests the button with UI
@@ -44,6 +49,30 @@ Decisions open for the user: whether design/ and ico/ are committed to the repo.
 
 ## Open items
 
+- ROOT CAUSE of the 2026-10-16 switch-over mess (missing groups, blank pin icons, refused drag
+  chip): the agent's shell runs in the Claude desktop app's MSIX sandbox, so the data root it
+  created (`%LOCALAPPDATA%\Dockaroo`) went to the sandbox's private copy. Dockaroo started by the
+  user or by a pin saw an empty data root; pinned .lnk icon paths pointed at a folder Explorer
+  could not see. Fix = the user copies the sandbox copy to the real folder themselves (see
+  CLAUDE.md "SANDBOX TRAP"). Several entries below were diagnosed before this was known: the
+  "hung startup" and "invisible editor" items may be partly the same cause; re-check them once
+  the real data root exists.
+- CAUSE FOUND (2026-10-16): "Edit groups..." did nothing because the agent had restarted the
+  resident with `Start-Process -WindowStyle Hidden`. Windows applies the launcher's STARTUPINFO
+  show state (SW_HIDE) to the process's first ShowWindow, so the editor's first Show() stayed
+  hidden (Visible=True, no WS_VISIBLE). Pin clicks and normal starts are not affected. Hardening
+  (optional): in TrayContext.OpenEditor, if the editor is not IsWindowVisible after Show(), call
+  ShowWindow(SW_SHOWNORMAL) once; and re-Show an existing editor that is not visible instead of
+  only Activate()-ing it.
+- BUG (2026-10-16, user hit it): a resident started while Explorer was busy (right after an
+  icon-cache refresh) hung inside TrayContext.Preload - its UI thread sat in a pumped COM wait, so
+  the tray kept the constructor's zero-group menu ("Show popup" / "Edit groups..." greyed out) and
+  pin clicks queued in StartupPopupQueue forever. Replaying the same steps later took ~2 s, so it
+  is an out-of-process shell call that never returned. Suspects: PinnedStateCache.Refresh ->
+  IPinnedList3.IsPinned (served by explorer) and shell icon extraction. Fix: build the menu from
+  LoadAll before any shell call, move the pin probe off the startup path (or bound it with a
+  timeout, falling back to the pinned-folder scan), replay queued requests without waiting on it;
+  tests with a hanging probe hook. Workaround: quit and restart Dockaroo.
 - Human checks not automatable under TESTING.md: a failing click shows ONE tray balloon; clicking
   a pinned button of a renamed/deleted group shows the "no longer exists" balloon; Win+N on a
   pinned group opens the popup without launching entry N; editor Change icon on a pinned group

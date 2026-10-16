@@ -94,4 +94,15 @@ public sealed class PopupTaskbarPlacementTests
     {
         Assert.Equal(edge, PopupGeometry.EdgeOfBar(Screen, Rectangle.FromLTRB(left, top, right, bottom)));
     }
+
+    [Fact]
+    public void BarCoversTuck_WhileTheBarOverlapsThePopup_NotOnceItHasSlidAway()
+    {
+        var bar = Rectangle.FromLTRB(0, 1032, 1920, 1080);
+        var popup = new Rectangle(890, 1032 - 51 + 2, 140, 51); // tucked 2px under the bar
+
+        Assert.True(PopupGeometry.BarCoversTuck(popup, bar));
+        Assert.False(PopupGeometry.BarCoversTuck(popup, Rectangle.FromLTRB(0, 1078, 1920, 1126))); // auto-hide sliver
+        Assert.False(PopupGeometry.BarCoversTuck(popup, Rectangle.Empty));
+    }
 }

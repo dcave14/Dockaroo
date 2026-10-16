@@ -415,6 +415,37 @@ public sealed class EditorFeatureTests : IDisposable
         });
     }
 
+    [Fact]
+    public void ShowInExplorer_SelectsTheGroupShortcutOrOpensTheFolder()
+    {
+        RunOnStaThread(() =>
+        {
+            var launched = new List<string>();
+            ShellHandoff.ExplorerLaunchOverride = launched.Add;
+            try
+            {
+                var store = Seed("Alpha");
+                using var editor = CreateEditor(store);
+                var button = Get<ThemedButton>(editor, "_showInExplorer");
+                Assert.Equal("Show in File Explorer", button.Text);
+                Assert.Contains(button, Get<Panel>(editor, "_footer").Controls.Cast<Control>());
+
+                // No .lnk yet: the shortcuts folder itself.
+                Click(button);
+                Assert.Equal("\"" + Path.GetFullPath(_shortcuts) + "\"", Assert.Single(launched));
+
+                // With the group's .lnk: Explorer opens with it selected.
+                File.WriteAllText(Path.Combine(_shortcuts, "Alpha.lnk"), "lnk");
+                Click(button);
+                Assert.Equal("/select,\"" + Path.GetFullPath(Path.Combine(_shortcuts, "Alpha.lnk")) + "\"", launched[1]);
+            }
+            finally
+            {
+                ShellHandoff.ExplorerLaunchOverride = null;
+            }
+        });
+    }
+
     // ---------------------------------------------------------------- helpers
 
     private static Size PopupGeometry(int count, int width) => Dockaroo.Core.Popup.PopupGeometry.SizeFor(count, width);

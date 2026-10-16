@@ -65,6 +65,10 @@ internal sealed partial class EditorForm
     private readonly Label _statusGlyph = new() { TextAlign = ContentAlignment.MiddleCenter };
     private readonly ThemedButton _delete = new("Delete group", ButtonKind.Danger, Glyphs.Delete);
     private readonly ThemedButton _createShortcut = new("Create taskbar shortcut", ButtonKind.Secondary);
+    private readonly ThemedButton _showInExplorer = new("Show in File Explorer", ButtonKind.Secondary);
+
+    // Drag-to-pin card shown above the footer after "Create taskbar shortcut".
+    private readonly PinChipCard _pinChip = new();
     private readonly ThemedButton _save = new("Save changes", ButtonKind.Primary);
     private readonly ToolTip _toolTip = new();
 
@@ -139,6 +143,7 @@ internal sealed partial class EditorForm
             _sidebar.AppearanceClicked += (_, _) => ShowAppearancePage();
         }
 
+        Controls.Add(_pinChip);
         Controls.Add(_footer);
         Controls.Add(_sidebar);
         AcceptButton = _save;
@@ -349,8 +354,9 @@ internal sealed partial class EditorForm
         _status.Font = EditorFonts.Label;
         _delete.Click += (_, _) => DeleteGroup();
         _createShortcut.Click += (_, _) => CreateTaskbarShortcut();
+        _showInExplorer.Click += (_, _) => ShowShortcutInExplorer();
         _save.Click += (_, _) => SaveGroup();
-        _footer.Controls.AddRange(new Control[] { _statusGlyph, _status, _delete, _createShortcut, _save });
+        _footer.Controls.AddRange(new Control[] { _statusGlyph, _status, _delete, _showInExplorer, _createShortcut, _save });
         _footer.Layout += (_, _) =>
         {
             var w = _footer.Width;
@@ -359,12 +365,29 @@ internal sealed partial class EditorForm
             _save.Bounds = new Rectangle(w - L(24) - L(160), (h - L(44)) / 2, L(160), L(44));
             var createWidth = wide ? L(240) : L(216);
             _createShortcut.Bounds = new Rectangle(_save.Left - L(12) - createWidth, (h - L(44)) / 2, createWidth, L(44));
-            var deleteLeft = Math.Min(L(196), _createShortcut.Left - L(12) - L(136));
-            _delete.Bounds = new Rectangle(deleteLeft, (h - L(40)) / 2, L(136), L(40));
+            var showWidth = wide ? L(200) : L(184);
+            _showInExplorer.Bounds = new Rectangle(_createShortcut.Left - L(12) - showWidth, (h - L(44)) / 2, showWidth, L(44));
+            // Delete sits at the left edge, apart from the actions on the right; the save status
+            // follows it and takes whatever room is left before the right-hand buttons.
+            _delete.Bounds = new Rectangle(L(24), (h - L(40)) / 2, L(136), L(40));
+            // The field, not _delete.Visible: Visible reads false until the form is first shown.
+            var statusLeft = _groupActionsVisible ? _delete.Right + L(20) : L(20);
             // Start below the 1px top border so the labels never paint over it.
-            _statusGlyph.Bounds = new Rectangle(L(20), 1, L(20), h - 1);
-            _status.Bounds = new Rectangle(L(44), 1, Math.Max(0, deleteLeft - L(56)), h - 1);
+            _statusGlyph.Bounds = new Rectangle(statusLeft, 1, L(20), h - 1);
+            _status.Bounds = new Rectangle(statusLeft + L(24), 1, Math.Max(0, _showInExplorer.Left - L(12) - (statusLeft + L(24))), h - 1);
+            PositionPinChip();
         };
+    }
+
+    /// <summary>
+    /// The pin card sits on top of "Create taskbar shortcut": same width and edges, its bottom
+    /// touching the button's top, so it reads as the button's own popover.
+    /// </summary>
+    private void PositionPinChip()
+    {
+        var button = _createShortcut.Bounds;
+        var height = L(PinChipCard.LogicalHeight);
+        _pinChip.Bounds = new Rectangle(_footer.Left + button.Left, _footer.Top + button.Top - height, button.Width, height);
     }
 
     /// <summary>Starts at the reference size but never larger than the screen it opens on.</summary>
@@ -410,6 +433,7 @@ internal sealed partial class EditorForm
             _appearancePage.Bounds = _content.Bounds;
         }
 
+        PositionPinChip();
         LayoutContent();
     }
 

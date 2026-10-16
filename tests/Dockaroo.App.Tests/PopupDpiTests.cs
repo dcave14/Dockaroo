@@ -134,6 +134,35 @@ public sealed class PopupDpiTests
         });
     }
 
+    [Fact]
+    public void TaskbarPopup_ShowsItsOwnTrimWhileAnAutoHideBarIsAway_AndClipsAgainWhenItReturns()
+    {
+        RunOnStaThread(() =>
+        {
+            var screen = System.Windows.Forms.Screen.PrimaryScreen!.Bounds;
+            var bar = Rectangle.FromLTRB(screen.Left, screen.Bottom - 48, screen.Right, screen.Bottom);
+            var anchor = new TaskbarAnchor(bar, screen.Left + 300, ButtonFound: true);
+            using var icons = new IconCache(TempDirectory());
+            using var popup = new PopupForm(ThreeAppGroup(), icons, new Point(screen.Left + 300, bar.Top + 20), metrics: PopupMetrics.Default, taskbar: anchor);
+            _ = popup.Handle;
+            var opened = popup.Bounds;
+            Assert.True(popup.TuckClipped);
+
+            // The auto-hide bar slides down to a 2px sliver: the strip is uncovered, so the whole
+            // popup (its bottom trim included) is shown - and it has not moved.
+            popup.UpdateTuckClip(Rectangle.FromLTRB(screen.Left, screen.Bottom - 2, screen.Right, screen.Bottom + 46));
+            Assert.False(popup.TuckClipped);
+            Assert.Null(popup.Region);
+            Assert.Equal(opened, popup.Bounds);
+
+            // The bar comes back up: clipped again, one trim line.
+            popup.UpdateTuckClip(bar);
+            Assert.True(popup.TuckClipped);
+            using var graphics = popup.CreateGraphics();
+            Assert.Equal(new RectangleF(0, 0, 140, 49), popup.Region!.GetBounds(graphics));
+        });
+    }
+
     [Theory]
     [InlineData(Dockaroo.Core.Popup.TaskbarEdge.Bottom, 0, 0, 140, 49)]
     [InlineData(Dockaroo.Core.Popup.TaskbarEdge.Top, 0, 2, 140, 49)]

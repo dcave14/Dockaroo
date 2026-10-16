@@ -1,6 +1,8 @@
+using System.Drawing;
 using System.Runtime.ExceptionServices;
 using System.Windows.Forms;
 using Dockaroo.App.Editor;
+using Dockaroo.App.Editor.Controls;
 using Dockaroo.Core;
 using Dockaroo.Core.Linking;
 using Xunit;
@@ -45,18 +47,90 @@ public sealed class DragPinChipTests : IDisposable
     }
 
     [Fact]
-    public void Chip_CarriesTheGroupTitleAndTheDragInstruction()
+    public void Card_CarriesTheGroupTitleTheInstructionAndTheShortcut()
     {
         RunOnStaThread(() =>
         {
             var lnkPath = Path.Combine(_shortcuts, "My Group.lnk");
+            using var card = new PinChipCard();
+            Assert.False(card.IsShowing);
 
-            using var chip = new DragPinChipForm("My Group", lnkPath, null);
+            card.ShowFor("My Group", lnkPath, null);
 
-            Assert.Equal("My Group", chip.TitleLabel.Text);
-            Assert.Equal("Drag onto the taskbar to pin", DragPinChipForm.InstructionText);
-            Assert.Equal("Drag onto the taskbar to pin", chip.InstructionLabel.Text);
-            Assert.Equal(lnkPath, chip.ShortcutPath);
+            Assert.True(card.IsShowing);
+            Assert.Equal("My Group", card.Title);
+            Assert.Equal("Drag onto the taskbar to pin", PinChipCard.InstructionText);
+            Assert.Equal(lnkPath, card.ShortcutPath);
+
+            card.Dismiss();
+            Assert.False(card.IsShowing);
+            Assert.Null(card.ShortcutPath);
+        });
+    }
+
+    [Fact]
+    public void Card_OffersShowInFileExplorerWithTheShortcutSelected()
+    {
+        RunOnStaThread(() =>
+        {
+            var lnkPath = Path.Combine(_shortcuts, "My Group.lnk");
+            var launched = new List<string>();
+            ShellHandoff.ExplorerLaunchOverride = launched.Add;
+            try
+            {
+                using var card = new PinChipCard();
+                card.ShowFor("My Group", lnkPath, null);
+
+                Assert.Equal("Show in File Explorer", card.ShowInFolderLink.Text);
+                Assert.Contains(card.ShowInFolderLink, card.Controls.Cast<Control>());
+                typeof(LinkLabel).GetMethod("OnLinkClicked", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                    .Invoke(card.ShowInFolderLink, new object[] { new LinkLabelLinkClickedEventArgs(card.ShowInFolderLink.Links[0]) });
+
+                Assert.Equal("/select,\"" + Path.GetFullPath(lnkPath) + "\"", Assert.Single(launched));
+            }
+            finally
+            {
+                ShellHandoff.ExplorerLaunchOverride = null;
+            }
+        });
+    }
+
+    [Fact]
+    public void Editor_ShowsTheCardInsideTheWindowAfterCreatingAShortcut_AndHidesItOnGroupSwitch()
+    {
+        RunOnStaThread(() =>
+        {
+            var store = new GroupStore(_config);
+            foreach (var name in new[] { "Alpha", "Beta" })
+            {
+                var group = new Group { Name = name };
+                group.Shortcuts.Add(new ShortcutEntry { TargetPath = _exePath, Name = "Notepad" });
+                Assert.True(store.Save(group).Success);
+            }
+
+            var pins = new PinnedStateCache(_shortcuts, _pinned, _exePath, _ => null);
+            using var editor = new EditorForm(store, listGroups: true, pinState: pins, shortcutsDirectory: _shortcuts);
+            editor.ClientSize = new Size(1440, 920);
+            editor.PerformLayout();
+
+            typeof(EditorForm).GetMethod("CreateTaskbarShortcut", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(editor, null);
+
+            var card = editor.PinChip;
+            Assert.True(card.IsShowing);
+            Assert.Equal("Alpha", card.Title);
+            Assert.Equal(Path.Combine(_shortcuts, "Alpha.lnk"), card.ShortcutPath);
+            Assert.Same(editor, card.Parent);
+            Assert.True(editor.ClientRectangle.Contains(card.Bounds), $"card {card.Bounds} must sit inside the editor {editor.ClientRectangle}");
+
+            // On "Create taskbar shortcut": same width and edges, bottom touching its top.
+            var footer = typeof(EditorForm).GetField("_footer", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(editor) as Control;
+            var button = typeof(EditorForm).GetField("_createShortcut", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(editor) as Control;
+            Assert.Equal(footer!.Left + button!.Left, card.Left);
+            Assert.Equal(button.Width, card.Width);
+            Assert.Equal(footer.Top + button.Top, card.Bottom);
+
+            typeof(EditorForm).GetMethod("LoadGroupByName", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(editor, new object[] { "Beta" });
+            Assert.False(card.IsShowing);
         });
     }
 
@@ -65,10 +139,46 @@ public sealed class DragPinChipTests : IDisposable
     {
         var lnkPath = Path.Combine(_shortcuts, "My Group.lnk");
 
-        var data = DragPinChipForm.CreateDragData(lnkPath);
+        var data = ShellHandoff.CreateDragData(lnkPath);
 
         Assert.True(data.GetDataPresent(DataFormats.FileDrop));
         Assert.Equal(new[] { lnkPath }, Assert.IsType<string[]>(data.GetData(DataFormats.FileDrop)));
+    }
+
+    [Fact]
+    public void ShellDragData_IsTheShellsOwnObjectWithIdListAndFileDrop()
+    {
+        RunOnStaThread(() =>
+        {
+            // A real .lnk: the shell builds its data object from an existing item only.
+            var written = GroupLnkWriter.Create("Pin Me", _exePath, _shortcuts);
+            Assert.True(written.Success, written.Error);
+            var lnkPath = written.LnkPath!;
+
+            var shellData = ShellHandoff.CreateShellDragData(lnkPath);
+
+            // Not the WinForms fallback: the shell's COM object, as File Explorer drags it.
+            Assert.IsNotType<DataObject>(shellData);
+            // A raw COM object: reflection type checks cannot see its interfaces, a cast (QueryInterface) can.
+            var view = new DataObject((System.Runtime.InteropServices.ComTypes.IDataObject)shellData);
+            Assert.True(view.GetDataPresent("Shell IDList Array"), "the taskbar pin target needs the shell ID list");
+            Assert.True(view.GetDataPresent(DataFormats.FileDrop));
+            var files = Assert.IsType<string[]>(view.GetData(DataFormats.FileDrop));
+            Assert.Equal(Path.GetFullPath(lnkPath), Path.GetFullPath(Assert.Single(files)), ignoreCase: true);
+        });
+    }
+
+    [Fact]
+    public void ShellDragData_FallsBackToTheFileDropForAMissingFile()
+    {
+        RunOnStaThread(() =>
+        {
+            var lnkPath = Path.Combine(_shortcuts, "Missing.lnk");
+
+            var data = Assert.IsType<DataObject>(ShellHandoff.CreateShellDragData(lnkPath));
+
+            Assert.Equal(new[] { lnkPath }, Assert.IsType<string[]>(data.GetData(DataFormats.FileDrop)));
+        });
     }
 
     [Fact]

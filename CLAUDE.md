@@ -50,6 +50,15 @@ Install on this machine: `E:\SOFTWARE\Dockaroo` (framework-dependent publish), d
 `%LOCALAPPDATA%\Dockaroo`. Update = the user quits from the tray, then
 `dotnet publish src\Dockaroo.App -c Release -o "E:\SOFTWARE\Dockaroo" --self-contained false`.
 Never kill the user's running app to free a locked folder; ask, or build to a scratch output.
+SANDBOX TRAP (2026-10-16): when the agent runs inside the Claude desktop app, its shell is in
+that app's MSIX sandbox. New files and folders it creates under `%LOCALAPPDATA%` are silently
+redirected to `%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Local\...`, visible only
+to processes started from the agent. So: never create or seed the data root from the agent, and
+never start the resident from the agent to "test" the user's setup (it sees the sandbox copy, and
+its drag chip hands Explorer paths it cannot see). Changes the user must see under AppData are
+done by the user (give them the command), or by Dockaroo started by the user. Writes to E:\ and to existing files outside AppData\Local (e.g. the pinned .lnk files) are not redirected.
+Start the resident with a plain `Start-Process <exe>`, never `-WindowStyle Hidden`: the hidden
+show state carries over to the app's first real window, so the editor opens invisible.
 
 ## Working rules (user)
 

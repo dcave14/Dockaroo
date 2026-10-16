@@ -207,6 +207,7 @@ internal sealed partial class EditorForm
     /// </summary>
     private void ShowAppearancePage()
     {
+        _pinChip.Dismiss();
         if (_appearancePage is null || ShowingAppearance)
         {
             return;
@@ -248,7 +249,9 @@ internal sealed partial class EditorForm
         _groupActionsVisible = visible;
         _delete.Visible = visible;
         _createShortcut.Visible = visible;
+        _showInExplorer.Visible = visible;
         _save.Visible = visible;
+        _footer.PerformLayout();
     }
 
     private int IndexOfSaved()
@@ -272,6 +275,7 @@ internal sealed partial class EditorForm
     /// <summary>Shows <see cref="_group"/> in the controls; the result is the clean (not dirty) state.</summary>
     private void LoadGroupIntoControls()
     {
+        _pinChip.Dismiss();
         _loading = true;
         try
         {

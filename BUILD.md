@@ -27,7 +27,8 @@ Or run the built exe directly:
 
     src/Dockaroo.App/bin/Release/net9.0-windows/Dockaroo.exe
 
-The app starts resident in the notification area and preloads every group plus the icons the
+The app starts resident in the notification area (a plain start also opens the editor) and
+preloads every group plus the icons the
 popup draws. The named pipe starts serving before that preload finishes, so a launch that
 arrives mid-preload is queued and shown once preload completes, never dropped. Launching the
 exe a second time captures the cursor and signals the resident instance over the named pipe to
@@ -55,8 +56,12 @@ resident:
   (bottom/top/left/right, hidden taskbar included).
 - `<group-name>` - everything after the third colon, so spaces are fine. The second instance
   builds it from its command line (`Dockaroo.exe "My Group"`; unquoted words are
-  joined with spaces). Without arguments the bare `popup` payload is sent and the resident
-  shows the first configured group.
+  joined with spaces).
+
+A plain start of `Dockaroo.exe` (no group name, e.g. double-clicking it) opens the editor: the
+second instance sends the payload `editor`, and a resident started that way opens the editor
+once its groups are loaded. The bare `popup` payload is still accepted and shows the first
+configured group.
 
 Groups are read from `<data-root>\config/<Group-Name>/group.xml` (spaces in the name become
 underscores in the folder name), and the shared PNG icon cache lives in
@@ -143,7 +148,9 @@ link; delete the stale `.lnk`, run `--create-link` again and pin the new one.
   The bar is the clicked taskbar window's real rectangle at click time (revealed, so this works
   with auto-hide); the button comes from a UI Automation hit test on the pipe thread (150 ms
   cap, cursor fallback). The tucked strip is cut out of the window (Region), and the popup stays
-  where it opened when an auto-hide bar slides away.
+  where it opened when an auto-hide bar slides away; while the bar is away the clip is dropped
+  so the popup shows its own bar-side trim (user ruling 2026-10-16), and it is re-applied when
+  the bar comes back (the bar's rectangle is polled every 100 ms while the popup is open).
 - Other opens (keyboard, no taskbar under the cursor): above the click point, clamped to the
   screen's working area; the legacy hidden-bar band (35 px / 45 px, from the
   legacy app's `frmMain.cs`) only applies there.
