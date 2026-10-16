@@ -358,6 +358,9 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
+# Local-only checklist that names the retired setup
+RETIRE-OLD-SETUP.md
+
 # Agent scratch: harnesses, measurements, captures
 .opencode/tasks/temp-scripts/
 .opencode/tasks/temp-screenshots/

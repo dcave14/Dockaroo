@@ -15,6 +15,12 @@ State as of 2026-10-16:
 Rules: TESTING.md (never drive the user's desktop; test windows behind the user's apps, muted).
 Commit only when the user asks; never push.
 
+Start here in a fresh session: CLAUDE.md (agent guide), then this file.
+
+Retiring the old setup (old workspace, previous install and data, the 2021 legacy app): checklist
+in RETIRE-OLD-SETUP.md - local and gitignored on purpose, so the old names never enter history.
+Delete that file once the old folders are gone.
+
 Next (user to pick order):
 1. Palette logo as the default .lnk icon for groups without a custom icon (design spec
    "defaultGroupIcon"; pinned links cache icons, so re-pin to see it).

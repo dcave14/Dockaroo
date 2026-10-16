@@ -32,8 +32,13 @@ FORBIDDEN in every test run:
 
 ## Hidden verification recipe (WinForms)
 
-1. Harness: a small C# or PowerShell + Add-Type program under .opencode/tasks/temp-scripts/ that
-   references the Release output (src/Dockaroo.App/bin/Release/net9.0-windows/*.dll).
+1. Harness: start from `tools/PopupCapture` (popup at 100/150/200% + editor) or
+   `tools/EditorCapture` (editor and Appearance page across palettes, modes and sizes). Both
+   reference the Release output (src/Dockaroo.App/bin/Release/net9.0-windows/), seed a temp data
+   root, and take an output folder as their only argument. Build the solution in Release first,
+   then run the tool's exe hidden (`Start-Process -WindowStyle Hidden -Wait`). One-off harnesses
+   go under .opencode/tasks/temp-scripts/ (gitignored). Windows PowerShell 5.1 cannot load the
+   .NET 9 assemblies, so checks against them need a small net9.0-windows console project.
 2. Show every form off-screen: StartPosition = Manual, Location = (-32000, -32000),
    ShowInTaskbar = false. Never call Activate().
 3. Drive the UI programmatically: invoke button handlers / public methods directly, reflection for
