@@ -31,6 +31,13 @@ Next (user to pick order):
 
 Decisions open for the user: whether design/ and ico/ are committed to the repo.
 
+## Logo rulings (user)
+
+- 2026-10-16: the cyborg kangaroo (`ico/dockaroo/Dockaroo-*.svg`, one geometry, colours only
+  differ) replaces every palette logo: amber -> Original, ocean, coral, graphite-gold, and a mint
+  variant derived from the ocean SVG (`ico/dockaroo/Dockaroo-mint.*`). `app-icon.ico` stays the
+  mint logo (mint is the default palette; ThemeServiceTests pins it).
+
 ## Popup placement rulings (user, confirmed live)
 
 - 2026-10-16: the popup keeps its bottom trim when an auto-hide bar drops (it looked cut off).
@@ -73,6 +80,11 @@ Decisions open for the user: whether design/ and ico/ are committed to the repo.
   LoadAll before any shell call, move the pin probe off the startup path (or bound it with a
   timeout, falling back to the pinned-folder scan), replay queued requests without waiting on it;
   tests with a hanging probe hook. Workaround: quit and restart Dockaroo.
+- LOGO-1 (2026-10-16): Appearance "Your current look" shows "Graphite  gold" - `_lookSummary`
+  (AppearancePage.cs:37) is a Label with UseMnemonic on, so the `&` is eaten. Fix: UseMnemonic =
+  false. Also: Original palette swatches/accents are azure-amber-emerald while its logo is now
+  amber; ico/dockaroo README/manifest still describe the old D set; themes.json `stem`/`assets`
+  keys point at old files (unread by code).
 - Human checks not automatable under TESTING.md: a failing click shows ONE tray balloon; clicking
   a pinned button of a renamed/deleted group shows the "no longer exists" balloon; Win+N on a
   pinned group opens the popup without launching entry N; editor Change icon on a pinned group

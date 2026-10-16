@@ -162,7 +162,7 @@ public sealed class ThemeServiceTests : IDisposable
                 }
             }
 
-            // Real art, not an empty frame (the wide logo leaves transparent margins: ~15% opaque).
+            // Real art, not an empty frame (the kangaroo leaves transparent margins: ~22-25% opaque).
             Assert.True(opaque > 48 * 48 / 10, $"{palette.Id}: only {opaque} opaque pixels");
 
             // Each palette is its own art: it differs from mint unless it is mint.
