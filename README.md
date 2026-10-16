@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/hero.png" alt="A Dockaroo popup open above its pinned taskbar button">
+  <img src="docs/images/hero.png" alt="My DEV group's popup open above its pinned taskbar button">
 </p>
 
 Windows 11 took away taskbar toolbars, so you either pin every app you use or dig through the
@@ -17,8 +17,10 @@ Start menu. Dockaroo puts a group of apps behind a single taskbar button. Click 
 small popup opens right on top of it, drawn to look like part of the taskbar. Click an app and
 it launches. Click anywhere else and the popup is gone.
 
-Dockaroo is a work in progress. It already runs my own taskbar. The screenshots below come
-from the app itself (see [How the screenshots were made](#how-the-screenshots-were-made)).
+Dockaroo is a work in progress. It already runs my own taskbar: Browsers, GAMING, DEV, MUSICA
+and PC STUFF are all Dockaroo groups, and the image above is my DEV group open. The screenshots
+come from the app itself (see [How the screenshots were made](#how-the-screenshots-were-made)).
+
 
 ## What it does
 
@@ -47,7 +49,7 @@ from the app itself (see [How the screenshots were made](#how-the-screenshots-we
 Groups, their shortcuts, popup settings and a live taskbar preview on one page. You can drag
 apps, shortcuts or folders onto the list.
 
-![Group editor, Mint palette, dark mode](docs/images/editor-dark.png)
+![Group editor showing my DEV group, Graphite & gold palette, dark mode](docs/images/editor-dark.png)
 
 ![Group editor, Ocean palette, light mode](docs/images/editor-light.png)
 
@@ -55,7 +57,7 @@ apps, shortcuts or folders onto the list.
 
 One choice sets the app logo, accents and surfaces, and the tray icon follows it.
 
-![Appearance page, Mint, dark](docs/images/appearance-dark.png)
+![Appearance page, Graphite & gold, dark](docs/images/appearance-dark.png)
 
 ![Appearance page, Graphite & gold, light](docs/images/appearance-light.png)
 
@@ -71,7 +73,7 @@ A cyborg kangaroo with the group's apps in its pouch, in all five palettes.
 
 ### Popup transparency
 
-The same popup at 0%, 40% and 80% transparency. Only the background fades.
+My DEV popup at 0%, 40% and 80% transparency. Only the background fades.
 
 ![The same popup at 0, 40 and 80 percent transparency](docs/images/transparency.png)
 
@@ -93,7 +95,7 @@ Done:
 - [x] Per-monitor DPI (PerMonitorV2) for the popup and the editor
 - [x] Importer for the legacy app's configuration
 - [x] Popup transparency on the background only
-- [x] Test suite: 298 core tests and 167 app tests (xUnit)
+- [x] Test suite: 298 core tests and 168 app tests (xUnit)
 
 Next:
 
@@ -146,10 +148,10 @@ tools/               off-screen capture tools used for visual checks
 ## How the screenshots were made
 
 The editor screenshots come from `tools/EditorCapture`, which opens the real editor off-screen
-with sample data and captures it with `PrintWindow`. The popup images are the popup's own
-rendered frames (the exact bitmap the window shows) placed over a drawn backdrop and taskbar.
-None of them are mockups of features that don't exist. The project's test rules forbid
-capturing the real desktop, so there is no live taskbar screenshot yet.
+on a copy of my groups and captures it with `PrintWindow`. The popup images are the popup's own
+rendered frames (the exact bitmap the window shows) for my DEV group. The wallpaper and the
+taskbar around them are drawn, using my real group icons. The project's test rules forbid
+capturing the real desktop, so there is no live screenshot yet.
 
 ## Credits and license
 

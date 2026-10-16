@@ -1,11 +1,14 @@
 // Editor capture: the editor and Appearance page in several palettes/modes and two window sizes.
 // Off-screen at (-32000,-32000), SW_SHOWNOACTIVATE, PrintWindow; temp data only; never activated.
-// Usage: EditorCapture <outDir>  (PNG files + editor-capture.txt log)
+// Usage: EditorCapture <outDir> [<configDir> <openGroup> <groupFolder>...]
+//   (PNG files + editor-capture.txt log). With a config dir, the listed group folders are COPIED
+//   into the temp root (the source is only read) and <openGroup> is shown instead of the sample.
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -28,15 +31,29 @@ internal static class Program
             ("mint", ResolvedMode.Dark, 1440, 960, "appearance-mint-dark-1440", true),
             ("graphite-gold", ResolvedMode.Light, 1440, 960, "appearance-graphite-light-1440", true),
             ("coral", ResolvedMode.Dark, 1100, 800, "appearance-coral-dark-1100", true),
+            ("graphite-gold", ResolvedMode.Dark, 1440, 960, "graphite-dark-1440", false),
+            ("graphite-gold", ResolvedMode.Dark, 1440, 960, "appearance-graphite-dark-1440", true),
         };
+        var sourceConfig = args.Length > 2 ? args[1] : null;
+        var openGroup = sourceConfig is null ? "Daily workspace" : args[2];
 
         try
         {
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.EnableVisualStyles();
-            var store = new GroupStore(Path.Combine(root, "config"));
             var sys = Environment.SystemDirectory;
             var win = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+            if (sourceConfig is not null)
+            {
+                foreach (var folder in args.Skip(3))
+                {
+                    CopyDirectory(Path.Combine(sourceConfig, folder), Path.Combine(root, "config", folder));
+                }
+            }
+
+            var store = new GroupStore(Path.Combine(root, "config"));
+            if (sourceConfig is null)
+            {
             Seed(store, "Daily workspace", 6, true, 10,
                 (Path.Combine(win, "explorer.exe"), "Browser", "", ""),
                 (Path.Combine(sys, "notepad.exe"), "Code editor", "--new-window", @"C:\Projects"),
@@ -45,6 +62,7 @@ internal static class Program
             Seed(store, "Browsers", 6, false, 10, (Path.Combine(win, "explorer.exe"), "Explorer", "", ""));
             Seed(store, "Gaming", 6, false, 10, (Path.Combine(sys, "taskmgr.exe"), "Task manager", "", ""));
             Seed(store, "Utilities", 6, false, 10, (Path.Combine(sys, "calc.exe"), "Calculator", "", ""));
+            }
 
             var app = Assembly.Load("Dockaroo");
             var themeType = app.GetType("Dockaroo.App.Editor.Theming.StaticThemeSource", true);
@@ -81,12 +99,16 @@ internal static class Program
                 editor.Size = new Size(run.W, run.H);
                 ShowWindow(editor.Handle, 4);
 
-                // Sample state from the spec: "Daily workspace", second shortcut selected, one edit (dirty).
-                editorType.GetMethod("LoadGroupByName", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(editor, new object[] { "Daily workspace" });
+                // Sample state from the spec: "Daily workspace", second shortcut selected, one edit
+                // (dirty). Real groups are shown as saved, with their third shortcut selected.
+                editorType.GetMethod("LoadGroupByName", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(editor, new object[] { openGroup });
                 var entries = editorType.GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(editor);
-                entries.GetType().GetMethod("SelectIndex").Invoke(entries, new object[] { 1 });
-                var width = editorType.GetField("_width", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(editor);
-                width.GetType().GetProperty("Value").SetValue(width, 4);
+                entries.GetType().GetMethod("SelectIndex").Invoke(entries, new object[] { sourceConfig is null ? 1 : 2 });
+                if (sourceConfig is null)
+                {
+                    var width = editorType.GetField("_width", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(editor);
+                    width.GetType().GetProperty("Value").SetValue(width, 4);
+                }
 
                 if (run.Appearance)
                 {
@@ -111,6 +133,15 @@ internal static class Program
         finally
         {
             try { Directory.Delete(root, true); } catch { }
+        }
+    }
+
+    private static void CopyDirectory(string from, string to)
+    {
+        Directory.CreateDirectory(to);
+        foreach (var file in Directory.GetFiles(from))
+        {
+            File.Copy(file, Path.Combine(to, Path.GetFileName(file)));
         }
     }
 
