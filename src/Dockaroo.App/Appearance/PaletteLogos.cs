@@ -9,7 +9,9 @@ namespace Dockaroo.App.Appearance;
 /// Crisp palette logos for the editor at any pixel size. <see cref="Icon"/> frames are only sharp
 /// at their own sizes (16..256); drawing one at 44 or 55 px stretches the nearest frame. These
 /// bitmaps are resampled once from the 256 px frame (bicubic), with the transparent margin
-/// trimmed so the tall kangaroo fills its height. Process-wide cache; callers never dispose.
+/// trimmed so the tall kangaroo fills its height. Cached per thread (GDI+ bitmaps must not be
+/// drawn from two threads at once; the app draws on its one UI thread, tests use many); callers
+/// never dispose.
 /// </summary>
 internal static class PaletteLogos
 {
@@ -22,9 +24,11 @@ internal static class PaletteLogos
     /// </summary>
     public const double VisualCentre = 0.565;
 
-    private static readonly object Gate = new();
-    private static readonly Dictionary<(string Palette, int Size, bool Square), Bitmap> Cache = new();
-    private static readonly Dictionary<string, (Bitmap Master, Rectangle Art)> Masters = new();
+    [ThreadStatic]
+    private static Dictionary<(string Palette, int Size, bool Square), Bitmap>? ThreadCache;
+
+    [ThreadStatic]
+    private static Dictionary<string, (Bitmap Master, Rectangle Art)>? ThreadMasters;
 
     /// <summary>
     /// The logo as a <paramref name="box"/> x <paramref name="box"/> bitmap: the art scaled to fill
@@ -43,28 +47,27 @@ internal static class PaletteLogos
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(size, 1);
         var palette = AppearancePreferences.IsKnownPalette(paletteId) ? paletteId : AppearancePreferences.DefaultPaletteId;
-        lock (Gate)
+        ThreadCache ??= new();
+        if (!ThreadCache.TryGetValue((palette, size, square), out var bitmap))
         {
-            if (!Cache.TryGetValue((palette, size, square), out var bitmap))
-            {
-                bitmap = Render(LoadMaster(palette), size, square);
-                Cache[(palette, size, square)] = bitmap;
-            }
-
-            return bitmap;
+            bitmap = Render(LoadMaster(palette), size, square);
+            ThreadCache[(palette, size, square)] = bitmap;
         }
+
+        return bitmap;
     }
 
     /// <summary>The palette's 256 px frame and its art rectangle, decoded once per palette.</summary>
     private static (Bitmap Master, Rectangle Art) LoadMaster(string palette)
     {
-        if (!Masters.TryGetValue(palette, out var master))
+        ThreadMasters ??= new();
+        if (!ThreadMasters.TryGetValue(palette, out var master))
         {
             using var stream = typeof(PaletteLogos).Assembly.GetManifestResourceStream(ResourcePrefix + palette + ".ico")
                 ?? throw new InvalidOperationException($"The '{palette}' logo resource is missing.");
             var bitmap = LargestFrame(stream);
             master = (bitmap, ArtBounds(bitmap));
-            Masters[palette] = master;
+            ThreadMasters[palette] = master;
         }
 
         return master;

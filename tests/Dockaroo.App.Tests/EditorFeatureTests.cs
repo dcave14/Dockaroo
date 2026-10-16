@@ -459,6 +459,25 @@ public sealed class EditorFeatureTests : IDisposable
     }
 
     [Fact]
+    public void AppearancePage_LookSummaryKeepsTheAmpersand()
+    {
+        RunOnStaThread(() =>
+        {
+            var appearance = new FakeAppearance();
+            using var editor = CreateEditor(Seed("Alpha"), appearance);
+            Invoke(editor, "ShowAppearancePage");
+            var page = Get<AppearancePage>(editor, "_appearancePage");
+
+            Click(page.PaletteTiles.Single(t => t.AccessibleName == "Graphite & gold"));
+
+            var summary = (Label)typeof(AppearancePage).GetField("_lookSummary", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(page)!;
+            Assert.StartsWith("Graphite & gold", summary.Text);
+            // A mnemonic label would render "Graphite  gold" (the & becomes an underline marker).
+            Assert.False(summary.UseMnemonic);
+        });
+    }
+
+    [Fact]
     public void AppearancePage_ArrowKeysMoveThroughThePalettes()
     {
         RunOnStaThread(() =>

@@ -97,11 +97,14 @@ Decisions open for the user: whether design/ and ico/ are committed to the repo.
   LoadAll before any shell call, move the pin probe off the startup path (or bound it with a
   timeout, falling back to the pinned-folder scan), replay queued requests without waiting on it;
   tests with a hanging probe hook. Workaround: quit and restart Dockaroo.
-- LOGO-1 (2026-10-16): Appearance "Your current look" shows "Graphite  gold" - `_lookSummary`
-  (AppearancePage.cs:37) is a Label with UseMnemonic on, so the `&` is eaten. Fix: UseMnemonic =
-  false. Also: Original palette swatches/accents are azure-amber-emerald while its logo is now
+- LOGO-1 (2026-10-16): FIXED - "Your current look" ate the `&` of "Graphite & gold"
+  (`_lookSummary` now has UseMnemonic = false). Still open: Original palette swatches/accents are
+  azure-amber-emerald while its logo is now
   amber; ico/dockaroo README/manifest still describe the old D set; themes.json `stem`/`assets`
   keys point at old files (unread by code).
+- UI-1 (2026-10-16): in dark mode the editor's shortcut list shows a bright white scrollbar
+  (visible with 7 shortcuts in DEV at 1440x960). The list is owner-drawn; theme its scrollbar
+  like the others (SetWindowTheme "DarkMode_Explorer") or draw its own.
 - Human checks not automatable under TESTING.md: a failing click shows ONE tray balloon; clicking
   a pinned button of a renamed/deleted group shows the "no longer exists" balloon; Win+N on a
   pinned group opens the popup without launching entry N; editor Change icon on a pinned group

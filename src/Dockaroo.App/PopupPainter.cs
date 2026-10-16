@@ -24,12 +24,7 @@ internal sealed class PopupPainter : IDisposable
     private static readonly SolidBrush TaskbarTrimBrush = new(TaskbarPalette.Trim);
     private static readonly SolidBrush TaskbarPlateBrush = new(TaskbarPalette.Plate);
     private static readonly SolidBrush TaskbarPlateTopEdgeBrush = new(TaskbarPalette.PlateTopEdge);
-    private static readonly StringFormat CenteredText = new(StringFormatFlags.NoWrap)
-    {
-        Alignment = StringAlignment.Center,
-        LineAlignment = StringAlignment.Center,
-        HotkeyPrefix = HotkeyPrefix.None,
-    };
+
 
     private readonly SolidBrush _background;
     private readonly SolidBrush _taskbarFill;
@@ -37,6 +32,14 @@ internal sealed class PopupPainter : IDisposable
     private readonly SolidBrush _hoverBrush;
     private readonly SolidBrush _placeholderBrush = new(Color.FromArgb(48, 255, 255, 255));
     private readonly SolidBrush _letterBrush;
+
+    // Per painter, not static: GDI+ objects must not be used from two threads at once.
+    private readonly StringFormat _centeredText = new(StringFormatFlags.NoWrap)
+    {
+        Alignment = StringAlignment.Center,
+        LineAlignment = StringAlignment.Center,
+        HotkeyPrefix = HotkeyPrefix.None,
+    };
 
     /// <summary>
     /// <paramref name="backgroundOpacity"/> (0..1, see <see cref="OpacityFor"/>) is the surface's
@@ -129,7 +132,7 @@ internal sealed class PopupPainter : IDisposable
             // punch the letter out of a translucent popup.
             var hint = graphics.TextRenderingHint;
             graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            graphics.DrawString(letter, font, _letterBrush, bounds, CenteredText);
+            graphics.DrawString(letter, font, _letterBrush, bounds, _centeredText);
             graphics.TextRenderingHint = hint;
         }
     }
@@ -164,6 +167,7 @@ internal sealed class PopupPainter : IDisposable
         _hoverBrush.Dispose();
         _placeholderBrush.Dispose();
         _letterBrush.Dispose();
+        _centeredText.Dispose();
     }
 
     private void DrawHoverPlate(Graphics graphics, int x, int y, PopupMetrics metrics)

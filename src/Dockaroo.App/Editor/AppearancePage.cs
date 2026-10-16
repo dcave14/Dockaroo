@@ -35,7 +35,8 @@ internal sealed class AppearancePage : Panel, IThemedControl
     private readonly Label _paletteHint = new() { Text = "One choice updates the app logo, accents, and surfaces together." };
     private readonly List<PaletteTile> _tiles = new();
     private readonly CardPanel _lookCard = new("Your current look");
-    private readonly Label _lookSummary = new();
+    // No mnemonics: "Graphite & gold" must not lose its ampersand.
+    private readonly Label _lookSummary = new() { UseMnemonic = false };
     private readonly LookSample _sample;
     private readonly Label _note1 = new() { Text = "Applies to the app interface and logo." };
     private readonly Label _note2 = new() { Text = "Group popup backgrounds stay independent." };
