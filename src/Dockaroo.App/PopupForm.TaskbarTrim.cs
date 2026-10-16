@@ -50,7 +50,7 @@ internal sealed partial class PopupForm
     {
         _tuckClipped = clipped && _tuckClip is not null;
         Region = _tuckClipped ? new Region(_tuckClip!.Value) : null;
-        Invalidate();
+        UpdateLayer();
     }
 
     private void StartBarWatch()

@@ -41,8 +41,8 @@ dotnet build Dockaroo.sln -c Release
 dotnet test Dockaroo.sln -c Release
 ```
 
-Expected: Core 297 passed + 1 skipped (the real-data import test, opt-in via
-`DOCKAROO_LEGACY_ROOT`), App 139 passed. Known flakes, rerun before chasing them:
+Expected: Core 298 passed + 1 skipped (the real-data import test, opt-in via
+`DOCKAROO_LEGACY_ROOT`), App 167 passed. Known flakes, rerun before chasing them:
 `SingleInstanceServerTests.OccupiedPipeName` while the user's resident runs, and
 `TaskbarLocatorTests.ElementRectAt_TheComBindingAnswers` (reads whatever is at the screen centre).
 

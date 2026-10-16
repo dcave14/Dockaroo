@@ -43,6 +43,10 @@ internal sealed partial class PopupForm : Form
     // Columns actually laid out: the group's Width, narrowed or widened to fit the screen.
     private readonly int _perRow;
 
+    // The laid-out window size in physical pixels. Layered frames use it, not ClientSize, which
+    // reads short while the handle is being created (and UpdateLayeredWindow would shrink to it).
+    private readonly Size _popupSize;
+
     // Physical-pixel measurements for the anchor monitor's DPI (PerMonitorV2).
     private readonly PopupMetrics _metrics;
 
@@ -79,13 +83,14 @@ internal sealed partial class PopupForm : Form
 
         // Legacy look: background color and transparency come from the group (frmMain ctor).
         // The Dark theme (the measured default) also gets the taskbar-matched surface.
-        _painter = new PopupPainter(group.ColorHex);
+        // The group's transparency fades the surface only (per-pixel alpha, PopupForm.Layered.cs).
+        _painter = new PopupPainter(group.ColorHex, PopupPainter.OpacityFor(group.Opacity));
         BackColor = _painter.BackColor;
-        Opacity = PopupPainter.OpacityFor(group.Opacity);
 
         var screen = Screen.FromPoint(anchor);
         _perRow = PopupGeometry.FitPerRow(group.Shortcuts.Count, group.Width, screen.WorkingArea, _metrics);
         var popupSize = PopupGeometry.SizeFor(group.Shortcuts.Count, _perRow, _metrics);
+        _popupSize = popupSize;
         ClientSize = popupSize;
         _barWindow = taskbar?.BarWindow ?? IntPtr.Zero;
 
@@ -119,6 +124,7 @@ internal sealed partial class PopupForm : Form
         get
         {
             var createParams = base.CreateParams;
+            createParams.ExStyle |= WsExLayered;
             if (_pinnedAppUserModelId is not null)
             {
                 createParams.ExStyle &= ~WsExToolWindow;
@@ -138,6 +144,9 @@ internal sealed partial class PopupForm : Form
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
+
+        // A layered window shows nothing until its first frame arrives.
+        UpdateLayer();
 
         if (_pinnedAppUserModelId is not null)
         {
@@ -195,6 +204,11 @@ internal sealed partial class PopupForm : Form
         if (m.Msg is WmKeyDown or WmSysKeyDown)
         {
             _keyDownWasRepeat = ((long)m.LParam & (1L << 30)) != 0;
+        }
+
+        if (SkipLayeredPaint(ref m))
+        {
+            return;
         }
 
         base.WndProc(ref m);
@@ -582,7 +596,7 @@ internal sealed partial class PopupForm : Form
         }
 
         _hoveredIndex = index;
-        Invalidate();
+        UpdateLayer();
     }
 
     /// <summary>

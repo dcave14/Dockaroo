@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Dockaroo.App.Editor;
 using Dockaroo.App.Editor.Controls;
@@ -10,6 +11,7 @@ using Dockaroo.Core;
 using Dockaroo.Core.Appearance;
 using Dockaroo.Core.Icons;
 using Dockaroo.Core.Linking;
+using Dockaroo.Core.Popup;
 using Xunit;
 
 namespace Dockaroo.App.Tests;
@@ -68,11 +70,124 @@ public sealed class EditorFeatureTests : IDisposable
             group.Shortcuts.Add(new ShortcutEntry { TargetPath = Notepad(), Name = "notepad" });
             using var icons = new IconCache(Path.Combine(_root, "icons"));
 
-            using var popup = new PopupForm(group, icons, new Point(10, 10));
+            using var popup = new PopupForm(group, icons, new Point(10, 10), metrics: PopupMetrics.Default);
+            using var frame = popup.RenderLayer();
 
-            Assert.Equal(0.1, popup.Opacity, 2);
+            // The window itself is never faded; the surface is clamped to 90% transparent.
+            Assert.Equal(1.0, popup.Opacity, 2);
+            Assert.Equal(25, frame.GetPixel(3, 3).A);
         });
     }
+
+    [Theory]
+    [InlineData(50, "#1F1F1F", 128)]
+    [InlineData(10, "#2A6FDB", 230)]
+    [InlineData(0, "#F3F3F3", 255)]
+    public void Popup_TransparencyFadesTheSurface_NotTheIcons(int transparency, string color, int surfaceAlpha)
+    {
+        RunOnStaThread(() =>
+        {
+            var group = new Group { Name = "Glass", Opacity = transparency, ColorHex = color };
+            group.Shortcuts.Add(new ShortcutEntry { TargetPath = Notepad(), Name = "notepad" });
+            group.Shortcuts.Add(new ShortcutEntry { TargetPath = Path.Combine(_root, "missing.exe"), Name = "zeta" });
+            using var icons = new IconCache(Path.Combine(_root, "icons"));
+            icons.Preload(new[] { IconSource.FromPath(Notepad()) }, PopupMetrics.Default.IconSize);
+
+            using var popup = new PopupForm(group, icons, new Point(10, 10), metrics: PopupMetrics.Default);
+            using var frame = popup.RenderLayer();
+
+            // Surface: inside the popup, outside every plate.
+            Assert.Equal(surfaceAlpha, frame.GetPixel(3, 3).A);
+            Assert.Equal(surfaceAlpha, frame.GetPixel(frame.Width - 4, frame.Height - 4).A);
+
+            // Icon: the notepad icon's opaque middle is untouched by the transparency.
+            var cell = Dockaroo.Core.Popup.PopupGeometry.TileBounds(0, group.Width, PopupMetrics.Default);
+            var middle = new Point(cell.X + (cell.Width / 2), cell.Y + (cell.Height / 2));
+            Assert.Equal(255, frame.GetPixel(middle.X, middle.Y).A);
+
+            // A missing icon's placeholder letter is drawn opaque, not punched out of the surface.
+            var placeholder = Dockaroo.Core.Popup.PopupGeometry.TileBounds(1, group.Width, PopupMetrics.Default);
+            var iconMargin = (PopupMetrics.Default.PlateSize - PopupMetrics.Default.IconSize) / 2;
+            var fill = frame.GetPixel(placeholder.X + iconMargin + 1, placeholder.Y + iconMargin + 1);
+            var letterPixels = 0;
+            for (var y = placeholder.Top; y < placeholder.Bottom; y++)
+            {
+                for (var x = placeholder.Left; x < placeholder.Right; x++)
+                {
+                    // Letter ink: clearly unlike the placeholder fill, and at least as opaque
+                    // (GDI text would have left alpha-0 holes instead).
+                    var pixel = frame.GetPixel(x, y);
+                    var diff = Math.Abs(pixel.R - fill.R) + Math.Abs(pixel.G - fill.G) + Math.Abs(pixel.B - fill.B);
+                    if (diff > 90 && pixel.A >= fill.A)
+                    {
+                        letterPixels++;
+                    }
+                }
+            }
+
+            Assert.True(letterPixels > 10, $"placeholder letter drew only {letterPixels} pixels");
+        });
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(40)]
+    public void Popup_IsALayeredWindow_AndItsFrameReachesIt(int transparency)
+    {
+        RunOnStaThread(() =>
+        {
+            var group = new Group { Name = "Layered", Opacity = transparency };
+            group.Shortcuts.Add(new ShortcutEntry { TargetPath = Notepad(), Name = "notepad" });
+            using var icons = new IconCache(Path.Combine(_root, "icons"));
+
+            using var popup = new PopupForm(group, icons, new Point(10, 10), metrics: PopupMetrics.Default);
+            _ = popup.Handle;
+
+            const int GwlExStyle = -20;
+            const long WsExLayered = 0x00080000;
+            Assert.NotEqual(0, GetWindowLongPtr(popup.Handle, GwlExStyle).ToInt64() & WsExLayered);
+            Assert.True(popup.LayerUpToDate, "UpdateLayeredWindow did not accept the first frame");
+            // Nothing re-routes the window through SetLayeredWindowAttributes (that breaks ULW).
+            Assert.Equal(1.0, popup.Opacity, 2);
+        });
+    }
+
+    [Fact]
+    public void Popup_TranslucentTrim_IsValidPremultipliedAlpha()
+    {
+        RunOnStaThread(() =>
+        {
+            var group = new Group { Name = "Trim", Opacity = 10 };
+            group.Shortcuts.Add(new ShortcutEntry { TargetPath = Notepad(), Name = "notepad" });
+            using var icons = new IconCache(Path.Combine(_root, "icons"));
+            using var popup = new PopupForm(group, icons, new Point(10, 10), metrics: PopupMetrics.Default);
+            using var frame = popup.RenderLayer();
+
+            // Raw bytes (GetPixel un-premultiplies and would hide a bad premultiply): every
+            // channel at most alpha, and the trim carries the surface alpha, not fill + trim.
+            var data = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
+            try
+            {
+                foreach (var (x, y) in new[] { (0, 5), (5, 0), (frame.Width - 1, 5), (5, 5) })
+                {
+                    var offset = (y * data.Stride) + (x * 4);
+                    var b = Marshal.ReadByte(data.Scan0, offset);
+                    var g = Marshal.ReadByte(data.Scan0, offset + 1);
+                    var r = Marshal.ReadByte(data.Scan0, offset + 2);
+                    var a = Marshal.ReadByte(data.Scan0, offset + 3);
+                    Assert.True(r <= a && g <= a && b <= a, $"({x},{y}) is not premultiplied: {a},{r},{g},{b}");
+                    Assert.InRange(a, 228, 231);
+                }
+            }
+            finally
+            {
+                frame.UnlockBits(data);
+            }
+        });
+    }
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
+    private static extern IntPtr GetWindowLongPtr(IntPtr window, int index);
 
     // ---------------------------------------------------------------- preview
 

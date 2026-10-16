@@ -219,7 +219,7 @@ internal sealed class TaskbarPreview : Control, IThemedControl
 
         using var popup = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
         using (var pg = Graphics.FromImage(popup))
-        using (var painter = new PopupPainter(_state.ColorHex))
+        using (var painter = new PopupPainter(_state.ColorHex, PopupPainter.OpacityFor(_state.Transparency)))
         {
             painter.Paint(pg, size, metrics, _state.Count, perRow, -1, _state.IconFor, _state.NameFor, DefaultFont);
         }
@@ -230,12 +230,10 @@ internal sealed class TaskbarPreview : Control, IThemedControl
         var y = taskbar.Top - gap - height;
         var target = new Rectangle(x, y, width, height);
 
-        using var attributes = new ImageAttributes();
-        var opacity = (float)PopupPainter.OpacityFor(_state.Transparency);
-        attributes.SetColorMatrix(new ColorMatrix { Matrix33 = opacity });
+        // The popup bitmap already carries the surface alpha (icons opaque), like the real popup.
         var interpolation = g.InterpolationMode;
         g.InterpolationMode = scale < 1 ? InterpolationMode.HighQualityBicubic : InterpolationMode.NearestNeighbor;
-        g.DrawImage(popup, target, 0, 0, size.Width, size.Height, GraphicsUnit.Pixel, attributes);
+        g.DrawImage(popup, target, 0, 0, size.Width, size.Height, GraphicsUnit.Pixel);
         g.InterpolationMode = interpolation;
         LastPopupBounds = target;
     }

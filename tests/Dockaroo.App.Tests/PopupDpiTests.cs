@@ -186,7 +186,8 @@ public sealed class PopupDpiTests
 
     private static Group ThreeAppGroup()
     {
-        var group = new Group { Name = "Dpi Test", Width = 6 };
+        // Solid surface (0% transparent): these tests compare exact surface colours.
+        var group = new Group { Name = "Dpi Test", Width = 6, Opacity = 0 };
         for (var i = 1; i <= 3; i++)
         {
             group.Shortcuts.Add(new ShortcutEntry { TargetPath = $@"C:\Fake\App{i}\app{i}.exe", Name = $"App {i}" });

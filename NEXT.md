@@ -48,6 +48,13 @@ Decisions open for the user: whether design/ and ico/ are committed to the repo.
   Deferred review nit: the `Dockaroo.App.Palettes.logo-` prefix is repeated in ThemeService,
   PaletteLogos and StaticThemeSource.
 
+## Popup transparency ruling (user)
+
+- 2026-10-16: the group's transparency fades only the popup's surface, never the icons. The
+  popup is a per-pixel-alpha layered window (`PopupForm.Layered.cs`, UpdateLayeredWindow)
+  instead of `Form.Opacity`; icons, placeholder letters and the hover plate stay opaque. The
+  editor's taskbar preview draws the same frame. Not yet seen live on the real taskbar.
+
 ## Popup placement rulings (user, confirmed live)
 
 - 2026-10-16: the popup keeps its bottom trim when an auto-hide bar drops (it looked cut off).

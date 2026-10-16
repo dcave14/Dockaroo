@@ -1,4 +1,6 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Windows.Forms;
 using Dockaroo.Core;
 using Dockaroo.Core.Popup;
@@ -9,7 +11,9 @@ namespace Dockaroo.App;
 /// Paints a group popup: the surface (the Dark theme's taskbar replica, or the group's own
 /// colour), the hover plate and the icon plates. Shared by <see cref="PopupForm"/> and the
 /// editor's taskbar preview, so the preview shows exactly what the popup draws. Memory only:
-/// icons come from the caller's lookup, never from disk.
+/// icons come from the caller's lookup, never from disk. The group's transparency applies to
+/// the surface alone: icons and the hover plate are always drawn opaque, so the target must
+/// keep per-pixel alpha (a 32bpp bitmap) for the surface to show through.
 /// </summary>
 internal sealed class PopupPainter : IDisposable
 {
@@ -20,21 +24,41 @@ internal sealed class PopupPainter : IDisposable
     private static readonly SolidBrush TaskbarTrimBrush = new(TaskbarPalette.Trim);
     private static readonly SolidBrush TaskbarPlateBrush = new(TaskbarPalette.Plate);
     private static readonly SolidBrush TaskbarPlateTopEdgeBrush = new(TaskbarPalette.PlateTopEdge);
+    private static readonly StringFormat CenteredText = new(StringFormatFlags.NoWrap)
+    {
+        Alignment = StringAlignment.Center,
+        LineAlignment = StringAlignment.Center,
+        HotkeyPrefix = HotkeyPrefix.None,
+    };
 
     private readonly SolidBrush _background;
+    private readonly SolidBrush _taskbarFill;
+    private readonly SolidBrush _taskbarTrim;
     private readonly SolidBrush _hoverBrush;
     private readonly SolidBrush _placeholderBrush = new(Color.FromArgb(48, 255, 255, 255));
+    private readonly SolidBrush _letterBrush;
 
-    public PopupPainter(string? colorHex)
+    /// <summary>
+    /// <paramref name="backgroundOpacity"/> (0..1, see <see cref="OpacityFor"/>) is the surface's
+    /// alpha; 1 paints a solid popup.
+    /// </summary>
+    public PopupPainter(string? colorHex, double backgroundOpacity = 1)
     {
         // Legacy look: the background colour comes from the group (frmMain ctor). The Dark
         // theme (the measured default) gets the taskbar-matched surface instead.
         TaskbarLook = string.Equals(colorHex, Group.DarkColorHex, StringComparison.OrdinalIgnoreCase);
         BackColor = ParseColor(colorHex);
         TextColor = IsLight(BackColor) ? Color.Black : Color.WhiteSmoke;
-        _background = new SolidBrush(BackColor);
+        BackgroundAlpha = (int)Math.Round(Math.Clamp(backgroundOpacity, 0, 1) * 255);
+        _background = new SolidBrush(Color.FromArgb(BackgroundAlpha, BackColor));
+        _taskbarFill = new SolidBrush(Color.FromArgb(BackgroundAlpha, TaskbarPalette.Fill));
+        _taskbarTrim = new SolidBrush(Color.FromArgb(BackgroundAlpha, TaskbarPalette.Trim));
         _hoverBrush = new SolidBrush(ComputeHoverColor(BackColor));
+        _letterBrush = new SolidBrush(TextColor);
     }
+
+    /// <summary>Alpha (0..255) the surface is painted with; icons are always 255.</summary>
+    public int BackgroundAlpha { get; }
 
     /// <summary>The group's popup colour (the form's BackColor).</summary>
     public Color BackColor { get; }
@@ -46,7 +70,7 @@ internal sealed class PopupPainter : IDisposable
     public Color TextColor { get; }
 
     /// <summary>
-    /// Window opacity for a stored transparency percentage. Rendering never goes past
+    /// Surface opacity for a stored transparency percentage. Rendering never goes past
     /// <see cref="Group.MaxRenderedTransparency"/>, so a stored 100 (legacy/imported) still shows a
     /// visible popup instead of an invisible window that takes clicks.
     /// </summary>
@@ -72,7 +96,7 @@ internal sealed class PopupPainter : IDisposable
     {
         if (TaskbarLook)
         {
-            PaintTaskbarBackground(graphics, size);
+            PaintTaskbarBackground(graphics, size, _taskbarFill, _taskbarTrim);
         }
         else
         {
@@ -101,13 +125,12 @@ internal sealed class PopupPainter : IDisposable
             graphics.FillRectangle(_placeholderBrush, bounds);
             var name = nameFor(i);
             var letter = name.Length > 0 ? name[..1].ToUpperInvariant() : "?";
-            TextRenderer.DrawText(
-                graphics,
-                letter,
-                font,
-                bounds,
-                TextColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            // GDI+ text, not TextRenderer: GDI writes alpha 0 into a 32bpp target, which would
+            // punch the letter out of a translucent popup.
+            var hint = graphics.TextRenderingHint;
+            graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+            graphics.DrawString(letter, font, _letterBrush, bounds, CenteredText);
+            graphics.TextRenderingHint = hint;
         }
     }
 
@@ -115,22 +138,32 @@ internal sealed class PopupPainter : IDisposable
     /// Paints the Dark-theme taskbar surface: the measured flat fill plus the 1px light-catch
     /// trim around the window's outer edge, so the popup reads as a piece of the taskbar.
     /// </summary>
-    public static void PaintTaskbarBackground(Graphics graphics, Size size)
+    public static void PaintTaskbarBackground(Graphics graphics, Size size) =>
+        PaintTaskbarBackground(graphics, size, TaskbarFillBrush, TaskbarTrimBrush);
+
+    private static void PaintTaskbarBackground(Graphics graphics, Size size, Brush fill, Brush trim)
     {
-        graphics.FillRectangle(TaskbarFillBrush, 0, 0, size.Width, size.Height);
+        graphics.FillRectangle(fill, 0, 0, size.Width, size.Height);
 
         // Pixel-exact 1px trim on all four outer edges; a 1px pen would straddle the boundary.
-        graphics.FillRectangle(TaskbarTrimBrush, 0, 0, size.Width, 1);
-        graphics.FillRectangle(TaskbarTrimBrush, 0, size.Height - 1, size.Width, 1);
-        graphics.FillRectangle(TaskbarTrimBrush, 0, 1, 1, size.Height - 2);
-        graphics.FillRectangle(TaskbarTrimBrush, size.Width - 1, 1, 1, size.Height - 2);
+        // SourceCopy: a translucent trim replaces the fill under it instead of stacking on it.
+        var mode = graphics.CompositingMode;
+        graphics.CompositingMode = CompositingMode.SourceCopy;
+        graphics.FillRectangle(trim, 0, 0, size.Width, 1);
+        graphics.FillRectangle(trim, 0, size.Height - 1, size.Width, 1);
+        graphics.FillRectangle(trim, 0, 1, 1, size.Height - 2);
+        graphics.FillRectangle(trim, size.Width - 1, 1, 1, size.Height - 2);
+        graphics.CompositingMode = mode;
     }
 
     public void Dispose()
     {
         _background.Dispose();
+        _taskbarFill.Dispose();
+        _taskbarTrim.Dispose();
         _hoverBrush.Dispose();
         _placeholderBrush.Dispose();
+        _letterBrush.Dispose();
     }
 
     private void DrawHoverPlate(Graphics graphics, int x, int y, PopupMetrics metrics)
