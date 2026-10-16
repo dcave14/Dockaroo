@@ -622,6 +622,8 @@ public sealed class EditorShellTests : IDisposable
 
         public ResolvedMode EffectiveMode => _current.EffectiveMode;
 
+        public string PaletteId => _current.PaletteId;
+
         public Icon GetAppIcon(Size size) => _current.GetAppIcon(size);
 
         public void Switch(string palette, ResolvedMode mode)

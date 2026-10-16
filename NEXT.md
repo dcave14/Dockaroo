@@ -37,6 +37,16 @@ Decisions open for the user: whether design/ and ico/ are committed to the repo.
   differ) replaces every palette logo: amber -> Original, ocean, coral, graphite-gold, and a mint
   variant derived from the ocean SVG (`ico/dockaroo/Dockaroo-mint.*`). `app-icon.ico` stays the
   mint logo (mint is the default palette; ThemeServiceTests pins it).
+- 2026-10-16: "logo too small, blurry in the app". The shipped ICOs are re-rendered from those
+  SVGs with a square viewBox tight around the art (2% margin; art 96% of the frame height, was
+  90%), so they no longer byte-match `ico/dockaroo`. Editor logos are drawn from
+  `PaletteLogos` (256 frame, trimmed, bicubic to the exact pixel size) instead of stretched ICO
+  frames; the sidebar logo is 60 px tall (44 compact), was a 44 px square.
+- 2026-10-16: the "Dockaroo" brand text is centred on the logo's middle. Its letters' ink is
+  centred on the kangaroo's head-to-feet middle (`PaletteLogos.VisualCentre`, 0.565 of the art
+  height): the thin dark ears barely show on the sidebar, so the full art box reads as too tall.
+  Deferred review nit: the `Dockaroo.App.Palettes.logo-` prefix is repeated in ThemeService,
+  PaletteLogos and StaticThemeSource.
 
 ## Popup placement rulings (user, confirmed live)
 

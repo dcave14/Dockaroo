@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dockaroo.App.Appearance;
 using Dockaroo.App.Editor.Controls;
 using Dockaroo.App.Editor.Theming;
 using Dockaroo.Core;
@@ -353,7 +354,7 @@ internal sealed class AppearancePage : Panel, IThemedControl
             }
 
             var logo = LogicalToDeviceUnits(64);
-            g.DrawIcon(_page._settings.GetIcon(Palette.Id, new Size(logo, logo)), new Rectangle((Width - logo) / 2, LogicalToDeviceUnits(16), logo, logo));
+            g.DrawImage(PaletteLogos.Square(Palette.Id, logo), new Rectangle((Width - logo) / 2, LogicalToDeviceUnits(16), logo, logo));
             TextRenderer.DrawText(
                 g,
                 Palette.Name,
@@ -428,7 +429,7 @@ internal sealed class AppearancePage : Panel, IThemedControl
             Draw.RoundedBox(g, ClientRectangle, LogicalToDeviceUnits(10), t.Field, t.Border);
             var logo = LogicalToDeviceUnits(64);
             var top = (Height - logo) / 2;
-            g.DrawIcon(_page._theme.GetAppIcon(new Size(logo, logo)), new Rectangle(LogicalToDeviceUnits(20), top, logo, logo));
+            g.DrawImage(PaletteLogos.Square(_page._theme.PaletteId, logo), new Rectangle(LogicalToDeviceUnits(20), top, logo, logo));
             var textLeft = LogicalToDeviceUnits(104);
             TextRenderer.DrawText(
                 g,

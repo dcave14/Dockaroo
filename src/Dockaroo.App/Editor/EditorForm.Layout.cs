@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using Dockaroo.App.Appearance;
 using Dockaroo.App.Editor.Controls;
 using Dockaroo.App.Editor.Theming;
 using Dockaroo.Core;
@@ -592,8 +593,15 @@ internal sealed partial class EditorForm
             var t = _owner._theme.Tokens;
             Draw.RoundedBox(e.Graphics, ClientRectangle, LogicalToDeviceUnits(12), t.IconWell);
             var size = LogicalToDeviceUnits(40);
-            var icon = GroupIcon ?? _owner._theme.GetAppIcon(new Size(size, size));
-            e.Graphics.DrawIcon(icon, new Rectangle((Width - size) / 2, (Height - size) / 2, size, size));
+            var box = new Rectangle((Width - size) / 2, (Height - size) / 2, size, size);
+            if (GroupIcon is { } icon)
+            {
+                e.Graphics.DrawIcon(icon, box);
+            }
+            else
+            {
+                e.Graphics.DrawImage(PaletteLogos.Square(_owner._theme.PaletteId, size), box);
+            }
         }
     }
 

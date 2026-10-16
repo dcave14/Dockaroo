@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using Dockaroo.App.Appearance;
 using Dockaroo.App.Editor.Theming;
 using Dockaroo.Core;
 using Dockaroo.Core.Appearance;
@@ -43,8 +44,8 @@ internal sealed class TaskbarPreview : Control, IThemedControl
         AccessibleName = "Taskbar preview";
     }
 
-    /// <summary>Palette logo drawn as the group's taskbar button (owned by the theme source).</summary>
-    public Icon? Logo { get; set; }
+    /// <summary>Palette whose logo is drawn as the group's taskbar button (none: no logo).</summary>
+    public string? LogoPalette { get; set; }
 
     /// <summary>Test hook: where the popup was drawn in the last paint, in control pixels.</summary>
     internal Rectangle LastPopupBounds { get; private set; }
@@ -175,9 +176,9 @@ internal sealed class TaskbarPreview : Control, IThemedControl
         // The group's own button: selected plate plus the accent underline.
         var groupButton = Button(2);
         Draw.RoundedBox(g, groupButton, LogicalToDeviceUnits(4), dark ? TaskbarPalette.Plate : Color.White);
-        if (Logo is not null)
+        if (LogoPalette is not null)
         {
-            g.DrawIcon(Logo, IconBox(groupButton));
+            g.DrawImage(PaletteLogos.Square(LogoPalette, icon), IconBox(groupButton));
         }
 
         var underline = new Rectangle(groupButton.X + ((plate - LogicalToDeviceUnits(16)) / 2), groupButton.Bottom - LogicalToDeviceUnits(3), LogicalToDeviceUnits(16), LogicalToDeviceUnits(3));

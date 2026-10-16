@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dockaroo.App.Appearance;
 using Dockaroo.App.Editor.Controls;
 using Dockaroo.App.Editor.Theming;
 using Dockaroo.Core;
@@ -25,7 +26,12 @@ internal sealed class EditorSidebar : Panel, IThemedControl
     private readonly ThemedButton _appearance;
     private bool _showAppearance;
     private ThemeTokens? _tokens;
-    private Icon? _logo;
+    private const TextFormatFlags BrandFlags = TextFormatFlags.Top | TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine;
+
+    // Ink rows per (font, text): measured once, the brand text and fonts are fixed.
+    private static readonly Dictionary<(Font Font, string Text), (int Top, int Bottom, int LineHeight)> InkCache = new();
+
+    private string? _logoPalette;
 
     public EditorSidebar()
     {
@@ -92,9 +98,10 @@ internal sealed class EditorSidebar : Panel, IThemedControl
         LayoutChildren();
     }
 
-    public void SetLogo(Icon logo)
+    /// <summary>Shows <paramref name="paletteId"/>'s logo next to the brand text.</summary>
+    public void SetLogo(string paletteId)
     {
-        _logo = logo;
+        _logoPalette = paletteId;
         Invalidate();
     }
 
@@ -139,25 +146,28 @@ internal sealed class EditorSidebar : Panel, IThemedControl
 
         var g = e.Graphics;
         var pad = LogicalToDeviceUnits(20);
-        // The compact (208px) sidebar uses a smaller logo so the product name keeps its room.
-        var logoSize = Width < LogicalToDeviceUnits(230) ? LogicalToDeviceUnits(32) : LogicalToDeviceUnits(44);
-        var top = LogicalToDeviceUnits(24) + ((LogicalToDeviceUnits(44) - logoSize) / 2);
-        if (_logo is not null)
+        // The logo is trimmed to its art (tall and narrow), so its height is the brand row's
+        // height. The compact (208px) sidebar uses a smaller one so the product name keeps its room.
+        var logoHeight = Width < LogicalToDeviceUnits(230) ? LogicalToDeviceUnits(44) : LogicalToDeviceUnits(60);
+        var top = LogicalToDeviceUnits(46) - (logoHeight / 2);
+        var logoWidth = 0;
+        if (_logoPalette is not null)
         {
-            g.DrawIcon(_logo, new Rectangle(pad, top, logoSize, logoSize));
+            var logo = PaletteLogos.Fitted(_logoPalette, logoHeight);
+            logoWidth = logo.Width;
+            g.DrawImage(logo, new Rectangle(pad, top, logo.Width, logo.Height));
         }
 
         // The brand font steps down when the name does not fit the sidebar (compact layout).
-        var brandBox = new Rectangle(pad + logoSize + LogicalToDeviceUnits(12), top, Width - pad - logoSize - LogicalToDeviceUnits(24), logoSize);
+        var brandLeft = pad + logoWidth + LogicalToDeviceUnits(12);
+        var brandWidth = Width - brandLeft - LogicalToDeviceUnits(12);
         var brandFont = new[] { EditorFonts.Brand, EditorFonts.BodyStrong, EditorFonts.LabelStrong }
-            .FirstOrDefault(font => TextRenderer.MeasureText(g, BrandText, font).Width <= brandBox.Width) ?? EditorFonts.LabelStrong;
-        TextRenderer.DrawText(
-            g,
-            BrandText,
-            brandFont,
-            brandBox,
-            t.NavText,
-            TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+            .FirstOrDefault(font => TextRenderer.MeasureText(g, BrandText, font, Size.Empty, BrandFlags).Width <= brandWidth) ?? EditorFonts.LabelStrong;
+        // Centre the letters' ink (not the font's line box) on the logo's visual middle.
+        var (inkTop, inkBottom, lineHeight) = InkRows(BrandText, brandFont);
+        var logoMiddle = top + (int)Math.Round(logoHeight * PaletteLogos.VisualCentre);
+        var brandTop = logoMiddle - ((inkTop + inkBottom + 1) / 2);
+        TextRenderer.DrawText(g, BrandText, brandFont, new Rectangle(brandLeft, brandTop, brandWidth, lineHeight), t.NavText, BrandFlags);
         TextRenderer.DrawText(
             g,
             "YOUR GROUPS",
@@ -177,6 +187,45 @@ internal sealed class EditorSidebar : Panel, IThemedControl
     /// List from y=128 (logical) down to just above New group; New group follows the list (or
     /// sits above Import when the list fills the space); Import is pinned to the bottom.
     /// </summary>
+    /// <summary>
+    /// The first and last pixel rows that <paramref name="text"/> actually inks when drawn with
+    /// <see cref="BrandFlags"/> at y=0, plus the line height; rendered once offscreen.
+    /// </summary>
+    internal static (int Top, int Bottom, int LineHeight) InkRows(string text, Font font)
+    {
+        if (InkCache.TryGetValue((font, text), out var rows))
+        {
+            return rows;
+        }
+
+        var size = TextRenderer.MeasureText(text, font, Size.Empty, BrandFlags);
+        using var bitmap = new Bitmap(Math.Max(1, size.Width), Math.Max(1, size.Height));
+        using (var g = Graphics.FromImage(bitmap))
+        {
+            g.Clear(Color.Black);
+            TextRenderer.DrawText(g, text, font, new Rectangle(Point.Empty, bitmap.Size), Color.White, Color.Black, BrandFlags);
+        }
+
+        int top = -1, bottom = -1;
+        for (var y = 0; y < bitmap.Height; y++)
+        {
+            for (var x = 0; x < bitmap.Width; x++)
+            {
+                if (bitmap.GetPixel(x, y).G > 96)
+                {
+                    top = top < 0 ? y : top;
+                    bottom = y;
+                    break;
+                }
+            }
+        }
+
+        // No ink (empty text): treat the whole line as ink, which is plain line-box centring.
+        rows = top < 0 ? (0, size.Height - 1, size.Height) : (top, bottom, size.Height);
+        InkCache[(font, text)] = rows;
+        return rows;
+    }
+
     private void LayoutChildren()
     {
         var side = LogicalToDeviceUnits(20);

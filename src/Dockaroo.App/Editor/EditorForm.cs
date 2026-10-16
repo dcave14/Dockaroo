@@ -322,8 +322,8 @@ internal sealed partial class EditorForm : Form
         Icon = _theme.GetAppIcon(SystemInformation.IconSize);
         BackColor = tokens.Canvas;
         _content.BackColor = tokens.Canvas;
-        _sidebar.SetLogo(_theme.GetAppIcon(new Size(LogicalToDeviceUnits(44), LogicalToDeviceUnits(44))));
-        _preview.Logo = _theme.GetAppIcon(new Size(LogicalToDeviceUnits(24), LogicalToDeviceUnits(24)));
+        _sidebar.SetLogo(_theme.PaletteId);
+        _preview.LogoPalette = _theme.PaletteId;
         ApplyThemeRecursive(this, tokens, mode);
         ApplyLabelColors(tokens);
         _iconWell.Invalidate();

@@ -17,6 +17,9 @@ internal interface IEditorThemeSource
 
     ResolvedMode EffectiveMode { get; }
 
+    /// <summary>The palette in effect; editor logos are drawn from <see cref="Appearance.PaletteLogos"/> with it.</summary>
+    string PaletteId { get; }
+
     /// <summary>The palette logo at a size; owned by the source, never disposed by callers.</summary>
     Icon GetAppIcon(Size size);
 
@@ -61,6 +64,8 @@ internal sealed class StaticThemeSource : IEditorThemeSource, IDisposable
     public ThemeTokens Tokens { get; }
 
     public ResolvedMode EffectiveMode { get; }
+
+    public string PaletteId => _paletteId;
 
     public Icon GetAppIcon(Size size)
     {

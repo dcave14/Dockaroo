@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Dockaroo.App.Appearance;
 using Dockaroo.Core;
 using Dockaroo.Core.Icons;
 using Dockaroo.Core.Legacy;
@@ -93,8 +94,8 @@ internal sealed partial class EditorForm
             }
         }
 
-        var size = new Size(LogicalToDeviceUnits(20), LogicalToDeviceUnits(20));
-        var logo = _theme.GetAppIcon(size).ToBitmap();
+        // A copy: the sidebar images are disposed on rebuild, the cached logo is not ours.
+        var logo = new Bitmap(PaletteLogos.Square(_theme.PaletteId, LogicalToDeviceUnits(20)));
         _logoImages.Add(logo);
         return logo;
     }

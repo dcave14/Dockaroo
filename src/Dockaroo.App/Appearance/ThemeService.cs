@@ -74,6 +74,8 @@ internal sealed class ThemeService : IEditorThemeSource, IAppearanceSettings, ID
     /// <summary>Light or dark, after resolving System.</summary>
     public ResolvedMode EffectiveMode => Preferences.Resolve(SystemUsesLight);
 
+    public string PaletteId => Preferences.PaletteId;
+
     /// <summary>The selected palette.</summary>
     public ThemePalette Palette => _catalog.Get(Preferences.PaletteId);
 

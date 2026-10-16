@@ -562,6 +562,8 @@ public sealed class EditorFeatureTests : IDisposable
 
         public ResolvedMode EffectiveMode => Preferences.Resolve(systemUsesLight: true);
 
+        public string PaletteId => Preferences.PaletteId;
+
         public Icon GetAppIcon(Size size) => GetIcon(Preferences.PaletteId, size);
 
         public Icon GetIcon(string paletteId, Size size)
