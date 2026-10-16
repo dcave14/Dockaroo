@@ -62,7 +62,8 @@ show state carries over to the app's first real window, so the editor opens invi
 
 ## Working rules (user)
 
-- Commit only when the user asks; never push. There is no remote yet.
+- Commit only when the user asks; push only when the user asks. Remote: `origin` =
+  https://github.com/dcave14/Dockaroo (public since 2026-10-16), so everything committed is public.
 - TESTING.md is binding: no mouse/keyboard injection, no focus stealing, no computer-use tools, no
   desktop screenshots; test windows go off-screen or behind all the user's windows, muted;
   terminals and spawned processes run hidden.
