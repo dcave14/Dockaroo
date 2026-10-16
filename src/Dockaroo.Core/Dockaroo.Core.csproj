@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Theme tokens from the design handoff (design/interface-v1/theme-variations/themes.json). -->
+    <EmbeddedResource Include="Appearance\themes.json" LogicalName="Dockaroo.Core.Appearance.themes.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="9.0.21" />
+  </ItemGroup>
+
+</Project>

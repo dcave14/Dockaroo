@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- The executable is Dockaroo.exe (not Dockaroo.App.exe), shown as "Dockaroo" in Task
+         Manager and the notification area settings. -->
+    <AssemblyName>Dockaroo</AssemblyName>
+    <Product>Dockaroo</Product>
+    <AssemblyTitle>Dockaroo</AssemblyTitle>
+    <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
+    <!-- Per-monitor DPI: the popup measures in physical pixels (PopupMetrics), forms autoscale. -->
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <!-- WFO1000 asks for designer-serialization attributes; this app has no designer files
+         (every form and control is built in code), so the rule does not apply. -->
+    <NoWarn>$(NoWarn);WFO1000</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dockaroo.Core\Dockaroo.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- One logo per app palette (design handoff); logo-mint.ico is identical to app-icon.ico. -->
+    <EmbeddedResource Include="Assets\Palettes\logo-*.ico" LogicalName="Dockaroo.App.Palettes.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dockaroo.App.Tests" />
+  </ItemGroup>
+
+</Project>

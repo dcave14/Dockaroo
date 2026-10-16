@@ -1,0 +1,583 @@
+{
+  "version": 1,
+  "preferencesSchema": {
+    "mode": {
+      "values": [
+        "light",
+        "dark",
+        "system"
+      ],
+      "default": "system"
+    },
+    "paletteId": {
+      "values": [
+        "original",
+        "ocean",
+        "mint",
+        "coral",
+        "graphite-gold"
+      ],
+      "default": "mint"
+    }
+  },
+  "palettes": [
+    {
+      "id": "original",
+      "name": "Original",
+      "stem": "01-original",
+      "description": "Azure, amber & emerald",
+      "swatches": [
+        "#FFB615",
+        "#059FF5",
+        "#0BC794"
+      ],
+      "modes": {
+        "light": {
+          "surface": "#FFFFFF",
+          "primaryForeground": "#FFFFFF",
+          "danger": "#A04747",
+          "warning": "#BC8B2D",
+          "canvas": "#F2F7FA",
+          "field": "#FAFCFE",
+          "border": "#DCE6EE",
+          "text": "#182D3F",
+          "muted": "#62778A",
+          "faint": "#8193A1",
+          "primary": "#0876AD",
+          "primaryHover": "#075F8B",
+          "selected": "#E7F3FC",
+          "selectedBorder": "#A7CDE6",
+          "sidebar": "#102A43",
+          "sidebarSelected": "#264C68",
+          "mint": "#A9DBF3",
+          "titlebar": "#EAF1F7",
+          "sidebarGradient": [
+            "#153B5B",
+            "#102A43"
+          ],
+          "desktopGradient": [
+            "#76CADC",
+            "#2F82AF"
+          ],
+          "waves": [
+            "#449BB7",
+            "#24799F",
+            "#195B7A"
+          ],
+          "drop": "#FAFCFE",
+          "dropBorder": "#DCE6EE",
+          "slider": "#DCE6EE",
+          "iconWell": "#E7F3FC",
+          "navText": "#E6EEF1",
+          "navMuted": "#B5C5CF",
+          "navLine": "#264C68"
+        },
+        "dark": {
+          "surface": "#192735",
+          "primaryForeground": "#0C293B",
+          "danger": "#F0AEAA",
+          "warning": "#D9B76B",
+          "canvas": "#0E1720",
+          "field": "#111E2B",
+          "border": "#2D455B",
+          "text": "#E4EEF6",
+          "muted": "#A0B5C7",
+          "primary": "#76C9ED",
+          "primaryHover": "#94D8F4",
+          "selected": "#213C50",
+          "selectedBorder": "#3B6884",
+          "sidebar": "#091B2A",
+          "sidebarSelected": "#203E55",
+          "mint": "#B5E5F8",
+          "titlebar": "#132230",
+          "sidebarGradient": [
+            "#102A40",
+            "#091B2A"
+          ],
+          "desktopGradient": [
+            "#315F7A",
+            "#1E4767"
+          ],
+          "waves": [
+            "#2E6480",
+            "#235370",
+            "#1A3D55"
+          ],
+          "drop": "#111E2B",
+          "dropBorder": "#2D455B",
+          "slider": "#2D455B",
+          "iconWell": "#213C50",
+          "faint": "#A0B5C7",
+          "navText": "#E6EEF1",
+          "navMuted": "#B5C5CF",
+          "navLine": "#203E55"
+        }
+      },
+      "assets": {
+        "svg": "assets/logo-original.svg",
+        "png": "assets/logo-original.png",
+        "ico": "assets/logo-original.ico"
+      }
+    },
+    {
+      "id": "ocean",
+      "name": "Ocean",
+      "stem": "02-ocean",
+      "description": "Cobalt & pale aqua",
+      "swatches": [
+        "#68B9EE",
+        "#2C58D5",
+        "#79D9DA"
+      ],
+      "modes": {
+        "light": {
+          "surface": "#FFFFFF",
+          "primaryForeground": "#FFFFFF",
+          "danger": "#A04747",
+          "warning": "#BC8B2D",
+          "canvas": "#F3F5FB",
+          "field": "#FAFBFF",
+          "border": "#DEE4F1",
+          "text": "#1A2848",
+          "muted": "#65718B",
+          "primary": "#3156BE",
+          "primaryHover": "#25449E",
+          "selected": "#EAF0FF",
+          "selectedBorder": "#B6C6F3",
+          "sidebar": "#102047",
+          "sidebarSelected": "#30477B",
+          "mint": "#AEC7FF",
+          "navMuted": "#A4B8DE",
+          "titlebar": "#EBEFF8",
+          "sidebarGradient": [
+            "#172D61",
+            "#102047"
+          ],
+          "desktopGradient": [
+            "#86B5E7",
+            "#3C66A4"
+          ],
+          "waves": [
+            "#5B8BD0",
+            "#3B68AB",
+            "#294A7B"
+          ],
+          "drop": "#FAFBFF",
+          "dropBorder": "#DEE4F1",
+          "slider": "#DEE4F1",
+          "iconWell": "#EAF0FF",
+          "faint": "#65718B",
+          "navText": "#E6EEF1",
+          "navLine": "#30477B"
+        },
+        "dark": {
+          "surface": "#1C2438",
+          "primaryForeground": "#152344",
+          "danger": "#F2AFAF",
+          "warning": "#D8B875",
+          "canvas": "#111522",
+          "field": "#151C2C",
+          "border": "#34415E",
+          "text": "#E8EDFC",
+          "muted": "#ADB9D4",
+          "primary": "#9AB5FF",
+          "primaryHover": "#B6C9FF",
+          "selected": "#283B5D",
+          "selectedBorder": "#4E6B9B",
+          "sidebar": "#0C1428",
+          "sidebarSelected": "#253858",
+          "mint": "#BDCEFF",
+          "navMuted": "#A7B9E2",
+          "titlebar": "#171F31",
+          "sidebarGradient": [
+            "#152544",
+            "#0C1428"
+          ],
+          "desktopGradient": [
+            "#3C5D8C",
+            "#263E70"
+          ],
+          "waves": [
+            "#345587",
+            "#29466F",
+            "#223858"
+          ],
+          "drop": "#151C2C",
+          "dropBorder": "#34415E",
+          "slider": "#34415E",
+          "iconWell": "#283B5D",
+          "faint": "#ADB9D4",
+          "navText": "#E6EEF1",
+          "navLine": "#253858"
+        }
+      },
+      "assets": {
+        "svg": "assets/logo-ocean.svg",
+        "png": "assets/logo-ocean.png",
+        "ico": "assets/logo-ocean.ico"
+      }
+    },
+    {
+      "id": "mint",
+      "name": "Mint",
+      "stem": "03-mint",
+      "description": "Teal & forest green",
+      "swatches": [
+        "#29945D",
+        "#18B3AD",
+        "#A1E9C6"
+      ],
+      "modes": {
+        "light": {
+          "surface": "#FFFFFF",
+          "primaryForeground": "#FFFFFF",
+          "danger": "#A04747",
+          "warning": "#BC8B2D",
+          "canvas": "#F3F7F5",
+          "field": "#FBFDFC",
+          "border": "#DCE7E1",
+          "text": "#172D29",
+          "muted": "#60776F",
+          "faint": "#8CA198",
+          "primary": "#117E76",
+          "primaryHover": "#0B6B64",
+          "selected": "#E8F6F0",
+          "selectedBorder": "#A7D9CB",
+          "sidebar": "#153F38",
+          "sidebarSelected": "#2B5A50",
+          "mint": "#A8E5CF",
+          "navText": "#D2E8DE",
+          "navMuted": "#9CC6B6",
+          "navLine": "#386459",
+          "titlebar": "#EDF4F1",
+          "iconWell": "#E1F3EB",
+          "drop": "#F8FBF9",
+          "dropBorder": "#BCCFC5",
+          "slider": "#D8E5DF",
+          "sidebarGradient": [
+            "#194D43",
+            "#123A34"
+          ],
+          "desktopGradient": [
+            "#79D3C4",
+            "#178FA4"
+          ],
+          "waves": [
+            "#309AA8",
+            "#167B92",
+            "#145D73"
+          ]
+        },
+        "dark": {
+          "surface": "#1C2922",
+          "primaryForeground": "#11291E",
+          "danger": "#E9A3A0",
+          "warning": "#D0AA5A",
+          "canvas": "#101713",
+          "field": "#131E18",
+          "border": "#334B3E",
+          "text": "#E6F0E9",
+          "muted": "#9FB3A6",
+          "faint": "#809B8B",
+          "primary": "#73D2AD",
+          "primaryHover": "#8BDFBE",
+          "selected": "#243E30",
+          "selectedBorder": "#426C55",
+          "sidebar": "#0A1A13",
+          "sidebarSelected": "#244A3A",
+          "mint": "#A8E5CF",
+          "navMuted": "#9CC6B6",
+          "navLine": "#294539",
+          "titlebar": "#15221B",
+          "iconWell": "#244334",
+          "drop": "#16251D",
+          "dropBorder": "#3B5747",
+          "slider": "#365044",
+          "sidebarGradient": [
+            "#102D25",
+            "#0A1A13"
+          ],
+          "desktopGradient": [
+            "#3A887C",
+            "#146272"
+          ],
+          "waves": [
+            "#206677",
+            "#14586C",
+            "#123E50"
+          ],
+          "navText": "#E6EEF1"
+        }
+      },
+      "assets": {
+        "svg": "assets/logo-mint.svg",
+        "png": "assets/logo-mint.png",
+        "ico": "assets/logo-mint.ico"
+      }
+    },
+    {
+      "id": "coral",
+      "name": "Coral",
+      "stem": "04-coral",
+      "description": "Rose, peach & terracotta",
+      "swatches": [
+        "#ED8590",
+        "#F39D89",
+        "#F5B78D"
+      ],
+      "modes": {
+        "light": {
+          "surface": "#FFFFFF",
+          "primaryForeground": "#FFFFFF",
+          "danger": "#A04747",
+          "warning": "#BC8B2D",
+          "canvas": "#FBF4F2",
+          "field": "#FFFBFA",
+          "border": "#ECDDDA",
+          "text": "#432B2F",
+          "muted": "#83676D",
+          "primary": "#A44A45",
+          "primaryHover": "#893C38",
+          "selected": "#FAE8E4",
+          "selectedBorder": "#E4BEB6",
+          "sidebar": "#432A34",
+          "sidebarSelected": "#7C515B",
+          "mint": "#F3C6BC",
+          "navText": "#F2E0E2",
+          "navMuted": "#D7B7BC",
+          "titlebar": "#F6EBE8",
+          "sidebarGradient": [
+            "#5F3943",
+            "#432A34"
+          ],
+          "desktopGradient": [
+            "#EAB4A2",
+            "#BF7C84"
+          ],
+          "waves": [
+            "#D39389",
+            "#B9747A",
+            "#8E5664"
+          ],
+          "drop": "#FFFBFA",
+          "dropBorder": "#ECDDDA",
+          "slider": "#ECDDDA",
+          "iconWell": "#FAE8E4",
+          "faint": "#83676D",
+          "navLine": "#7C515B"
+        },
+        "dark": {
+          "surface": "#302326",
+          "primaryForeground": "#401E1F",
+          "danger": "#F4AEAE",
+          "warning": "#D8B272",
+          "canvas": "#211718",
+          "field": "#251A1D",
+          "border": "#503A40",
+          "text": "#F8EBE9",
+          "muted": "#C7AAAF",
+          "primary": "#EFAFA3",
+          "primaryHover": "#F7C5BA",
+          "selected": "#4A3034",
+          "selectedBorder": "#795352",
+          "sidebar": "#1B1117",
+          "sidebarSelected": "#4B303A",
+          "mint": "#F1C6BC",
+          "navText": "#F1DCE1",
+          "navMuted": "#C7ABB4",
+          "titlebar": "#291C20",
+          "sidebarGradient": [
+            "#2F1B24",
+            "#1B1117"
+          ],
+          "desktopGradient": [
+            "#80535D",
+            "#653C52"
+          ],
+          "waves": [
+            "#764954",
+            "#603B4D",
+            "#492C3D"
+          ],
+          "drop": "#251A1D",
+          "dropBorder": "#503A40",
+          "slider": "#503A40",
+          "iconWell": "#4A3034",
+          "faint": "#C7AAAF",
+          "navLine": "#4B303A"
+        }
+      },
+      "assets": {
+        "svg": "assets/logo-coral.svg",
+        "png": "assets/logo-coral.png",
+        "ico": "assets/logo-coral.ico"
+      }
+    },
+    {
+      "id": "graphite-gold",
+      "name": "Graphite & gold",
+      "stem": "05-graphite-gold",
+      "description": "Charcoal & warm champagne",
+      "swatches": [
+        "#82848E",
+        "#C18D2E",
+        "#EDD9AB"
+      ],
+      "modes": {
+        "light": {
+          "surface": "#FFFFFF",
+          "primaryForeground": "#FFFFFF",
+          "danger": "#A04747",
+          "warning": "#BC8B2D",
+          "canvas": "#F7F6F2",
+          "field": "#FCFBF7",
+          "border": "#E5DFCF",
+          "text": "#38352B",
+          "muted": "#7B7361",
+          "primary": "#826315",
+          "primaryHover": "#6D520E",
+          "selected": "#F7EFCF",
+          "selectedBorder": "#DEC990",
+          "sidebar": "#2A2B31",
+          "sidebarSelected": "#54514B",
+          "mint": "#E6CF91",
+          "navText": "#EEE9DD",
+          "navMuted": "#C6BFAF",
+          "titlebar": "#EFEDE5",
+          "sidebarGradient": [
+            "#3B3B41",
+            "#2A2B31"
+          ],
+          "desktopGradient": [
+            "#CFBE89",
+            "#888877"
+          ],
+          "waves": [
+            "#B5A781",
+            "#8D8772",
+            "#6B6A63"
+          ],
+          "drop": "#FCFBF7",
+          "dropBorder": "#E5DFCF",
+          "slider": "#E5DFCF",
+          "iconWell": "#F7EFCF",
+          "faint": "#7B7361",
+          "navLine": "#54514B"
+        },
+        "dark": {
+          "surface": "#252529",
+          "primaryForeground": "#33270B",
+          "danger": "#EFA8A6",
+          "warning": "#DDC17C",
+          "canvas": "#18181A",
+          "field": "#1C1C20",
+          "border": "#424248",
+          "text": "#F2EEE3",
+          "muted": "#BBB4A5",
+          "primary": "#E2C16B",
+          "primaryHover": "#EED28A",
+          "selected": "#403A28",
+          "selectedBorder": "#6E603B",
+          "sidebar": "#131316",
+          "sidebarSelected": "#36332B",
+          "mint": "#ECD69B",
+          "navText": "#EDE8DC",
+          "navMuted": "#BFB7A6",
+          "titlebar": "#1E1E22",
+          "sidebarGradient": [
+            "#242329",
+            "#131316"
+          ],
+          "desktopGradient": [
+            "#71654D",
+            "#46464D"
+          ],
+          "waves": [
+            "#625C50",
+            "#514E49",
+            "#3B3A3C"
+          ],
+          "drop": "#1C1C20",
+          "dropBorder": "#424248",
+          "slider": "#424248",
+          "iconWell": "#403A28",
+          "faint": "#BBB4A5",
+          "navLine": "#36332B"
+        }
+      },
+      "assets": {
+        "svg": "assets/logo-graphite-gold.svg",
+        "png": "assets/logo-graphite-gold.png",
+        "ico": "assets/logo-graphite-gold.ico"
+      }
+    }
+  ],
+  "behavior": {
+    "logoAndColors": "One palette ID chooses the app logo and its complete color tokens",
+    "mode": "Independent light/dark/system preference; resolve system from Windows",
+    "groupPopups": "Group background and transparency remain independent",
+    "defaultGroupIcon": "Uses selected app icon only when a custom group icon is absent"
+  },
+  "variants": [
+    {
+      "palette": "original",
+      "mode": "light",
+      "editor": "editors/original-light.svg",
+      "settings": "settings/original-light.svg"
+    },
+    {
+      "palette": "original",
+      "mode": "dark",
+      "editor": "editors/original-dark.svg",
+      "settings": "settings/original-dark.svg"
+    },
+    {
+      "palette": "ocean",
+      "mode": "light",
+      "editor": "editors/ocean-light.svg",
+      "settings": "settings/ocean-light.svg"
+    },
+    {
+      "palette": "ocean",
+      "mode": "dark",
+      "editor": "editors/ocean-dark.svg",
+      "settings": "settings/ocean-dark.svg"
+    },
+    {
+      "palette": "mint",
+      "mode": "light",
+      "editor": "editors/mint-light.svg",
+      "settings": "settings/mint-light.svg"
+    },
+    {
+      "palette": "mint",
+      "mode": "dark",
+      "editor": "editors/mint-dark.svg",
+      "settings": "settings/mint-dark.svg"
+    },
+    {
+      "palette": "coral",
+      "mode": "light",
+      "editor": "editors/coral-light.svg",
+      "settings": "settings/coral-light.svg"
+    },
+    {
+      "palette": "coral",
+      "mode": "dark",
+      "editor": "editors/coral-dark.svg",
+      "settings": "settings/coral-dark.svg"
+    },
+    {
+      "palette": "graphite-gold",
+      "mode": "light",
+      "editor": "editors/graphite-gold-light.svg",
+      "settings": "settings/graphite-gold-light.svg"
+    },
+    {
+      "palette": "graphite-gold",
+      "mode": "dark",
+      "editor": "editors/graphite-gold-dark.svg",
+      "settings": "settings/graphite-gold-dark.svg"
+    }
+  ]
+}
