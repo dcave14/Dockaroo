@@ -34,7 +34,6 @@ internal sealed class TaskbarPreview : Control, IThemedControl
     private const int ScenePadding = 8;
 
     private ThemeTokens? _tokens;
-    private ResolvedMode _mode;
     private PreviewState _state = PreviewState.Empty;
 
     public TaskbarPreview()
@@ -53,7 +52,6 @@ internal sealed class TaskbarPreview : Control, IThemedControl
     public void ApplyTheme(ThemeTokens tokens, ResolvedMode mode)
     {
         _tokens = tokens;
-        _mode = mode;
         Invalidate();
     }
 
@@ -138,13 +136,12 @@ internal sealed class TaskbarPreview : Control, IThemedControl
     /// <summary>Draws the taskbar strip and returns the group button's bounds.</summary>
     private Rectangle PaintTaskbar(Graphics g, Rectangle bar, ThemeTokens t)
     {
-        var dark = _mode == ResolvedMode.Dark;
-        using (var fill = new SolidBrush(dark ? TaskbarPalette.Fill : Color.FromArgb(243, 243, 243)))
+        using (var fill = new SolidBrush(t.PreviewStrip))
         {
             g.FillRectangle(fill, bar);
         }
 
-        using (var trim = new SolidBrush(dark ? TaskbarPalette.Trim : Color.FromArgb(224, 224, 224)))
+        using (var trim = new SolidBrush(t.PreviewTrim))
         {
             g.FillRectangle(trim, bar.X, bar.Y, bar.Width, 1);
         }
@@ -169,13 +166,13 @@ internal sealed class TaskbarPreview : Control, IThemedControl
             g.FillRectangle(blue, start.Right - half, start.Bottom - half, half, half);
         }
 
-        var glyphColor = dark ? Color.FromArgb(220, 220, 220) : Color.FromArgb(40, 40, 40);
+        var glyphColor = t.NavText;
         var flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding;
         TextRenderer.DrawText(g, "\uE721", EditorFonts.Icon, Button(1), glyphColor, flags);
 
         // The group's own button: selected plate plus the accent underline.
         var groupButton = Button(2);
-        Draw.RoundedBox(g, groupButton, LogicalToDeviceUnits(4), dark ? TaskbarPalette.Plate : Color.White);
+        Draw.RoundedBox(g, groupButton, LogicalToDeviceUnits(4), t.PreviewPlate);
         if (LogoPalette is not null)
         {
             g.DrawImage(PaletteLogos.Square(LogoPalette, icon), IconBox(groupButton));

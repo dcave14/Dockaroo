@@ -31,8 +31,9 @@ The app starts resident in the notification area (a plain start also opens the e
 preloads every group plus the icons the
 popup draws. The named pipe starts serving before that preload finishes, so a launch that
 arrives mid-preload is queued and shown once preload completes, never dropped. Launching the
-exe a second time captures the cursor and signals the resident instance over the named pipe to
-show the popup near that point, then exits (exit code 0). A launch that starts the resident
+exe a second time captures the live cursor and signals the resident instance over the named pipe
+to show the popup anchored to the group's taskbar button, found via UI Automation (the cursor
+is only a tie-break and the fallback), then exits (exit code 0). A launch that starts the resident
 itself (no other instance running) takes its own command line as the first popup request, so a
 pinned group button works on the first click after a reboot.
 
@@ -51,12 +52,12 @@ resident:
     popup:<x>:<y>:<group-name>
 
 - `popup` - literal keyword.
-- `<x>`/`<y>` - cursor position at launch time in virtual-screen coordinates. The resident
-  places the popup near this point, next to the taskbar edge of the screen that contains it
-  (bottom/top/left/right, hidden taskbar included).
-- `<group-name>` - everything after the third colon, so spaces are fine. The second instance
-  builds it from its command line (`Dockaroo.exe "My Group"`; unquoted words are
-  joined with spaces).
+- `<x>`/`<y>` - the live mouse cursor at launch time in virtual-screen coordinates. The resident
+  anchors the popup to the group's taskbar button, found via UI Automation; this cursor is only
+  the tie-break between bars and the fallback when no button matches.
+- `<group-name>` - everything after the third colon, so spaces are fine. A pinned `.lnk` passes
+  the bare group name as its argument (`Dockaroo.exe "My Group"`); the second instance builds
+  this payload from that command line (unquoted words are joined with spaces).
 
 A plain start of `Dockaroo.exe` (no group name, e.g. double-clicking it) opens the editor: the
 second instance sends the payload `editor`, and a resident started that way opens the editor
@@ -111,8 +112,9 @@ default is the same folder); a second argument picks another location:
 The shortcut targets the app executable with the quoted group name as its argument
 (`Dockaroo.exe "My Group"`), exactly the second-instance form above, so double-clicking
 it opens that group's popup through the resident handoff. It also records the group's
-AppUserModelID (`Dockaroo.menu.<group>`, spaces as underscores: `Dockaroo.menu.PC_STUFF`) and
-uses the group's `GroupIcon.ico` when it has one, the exe icon otherwise. Re-running the command replaces the `.lnk` in
+AppUserModelID (`Dockaroo.menu.<group>`, spaces as underscores: `Dockaroo.menu.PC_STUFF`),
+written only for valid group names, and uses the group's `GroupIcon.ico` when it has one,
+the exe icon otherwise. Re-running the command replaces the `.lnk` in
 place, like the legacy ShellLink save. The group must exist in the config store
 (`<data-root>\config/<Group-Name>/group.xml`, as above): a valid-but-unknown name
 prints a "group not found" error to stderr and exits 1 without writing a `.lnk`, so the
@@ -146,8 +148,9 @@ link; delete the stale `.lnk`, run `--create-link` again and pin the new one.
 - Taskbar clicks (user rulings 2026-10-15): the popup is centred on the clicked button and its
   bar-side edge tucks 2 px (scaled) under the taskbar, which covers it - one trim line, not two.
   The bar is the clicked taskbar window's real rectangle at click time (revealed, so this works
-  with auto-hide); the button comes from a UI Automation hit test on the pipe thread (150 ms
-  cap, cursor fallback). The tucked strip is cut out of the window (Region), and the popup stays
+  with auto-hide); the button is the group's own taskbar button, matched by UI Automation off the
+  UI thread (150 ms cap); the captured cursor is only the bar tie-break and the fallback when no
+  button matches. The tucked strip is cut out of the window (Region), and the popup stays
   where it opened when an auto-hide bar slides away; while the bar is away the clip is dropped
   so the popup shows its own bar-side trim (user ruling 2026-10-16), and it is re-applied when
   the bar comes back (the bar's rectangle is polled every 100 ms while the popup is open).

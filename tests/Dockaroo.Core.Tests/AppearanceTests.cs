@@ -200,10 +200,10 @@ public sealed class AppearanceTests : IDisposable
         var mint = catalog.Get("mint");
         Assert.Equal(Hex("#73D2AD"), mint.Dark.Primary);
         Assert.Equal(Hex("#11291E"), mint.Dark.PrimaryForeground);
-        Assert.Equal(Hex("#117E76"), mint.Light.Primary);
+        Assert.Equal(Hex("#0F7A6E"), mint.Light.Primary);
         Assert.Equal(Hex("#FFFFFF"), mint.Light.PrimaryForeground);
         Assert.Equal(new[] { Hex("#29945D"), Hex("#18B3AD"), Hex("#A1E9C6") }, mint.Swatches);
-        Assert.Equal(Hex("#182D3F"), catalog.Get("original").Light.Text);
+        Assert.Equal(Hex("#2B2416"), catalog.Get("original").Light.Text);
         Assert.Equal(Hex("#E2C16B"), catalog.Get("graphite-gold").For(ResolvedMode.Dark).Primary);
         Assert.Equal(3, catalog.Get("coral").Dark.Waves.Count);
     }
@@ -236,7 +236,7 @@ public sealed class AppearanceTests : IDisposable
     public void Parse_MissingToken_FailsNamingIt()
     {
         var json = File.ReadAllText(Path.Combine(RepoRoot(), "src", "Dockaroo.Core", "Appearance", "themes.json"))
-            .Replace("\"primaryHover\": \"#94D8F4\",", string.Empty, StringComparison.Ordinal);
+            .Replace("\"primaryHover\": \"#F0D38C\",", string.Empty, StringComparison.Ordinal);
 
         var error = Assert.Throws<FormatException>(() => ThemeCatalog.Parse(json));
 

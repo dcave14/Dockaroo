@@ -105,4 +105,114 @@ public sealed class PopupTaskbarPlacementTests
         Assert.False(PopupGeometry.BarCoversTuck(popup, Rectangle.FromLTRB(0, 1078, 1920, 1126))); // auto-hide sliver
         Assert.False(PopupGeometry.BarCoversTuck(popup, Rectangle.Empty));
     }
+
+    // --- Group-button anchor and parked bars (popup-anchor fix, 2026-10-17) ---
+
+    [Theory]
+    [InlineData(0, 1078, 1920, 1126, 0, 1032, 1920, 1080)]      // bottom bar parked 46px down
+    [InlineData(0, -46, 1920, 2, 0, 0, 1920, 48)]                // top bar parked 46px up
+    [InlineData(-46, 0, 2, 1080, 0, 0, 48, 1080)]                // left bar parked 46px out
+    [InlineData(1920, 0, 1968, 1080, 1872, 0, 1920, 1080)]       // right bar parked 46px out
+    public void RevealedBar_SnapsEveryParkedEdgeFlushToItsMonitorEdge(
+        int left, int top, int right, int bottom,
+        int expectedLeft, int expectedTop, int expectedRight, int expectedBottom)
+    {
+        var parked = Rectangle.FromLTRB(left, top, right, bottom);
+
+        var revealed = PopupGeometry.RevealedBar(parked, Screen);
+
+        Assert.Equal(Rectangle.FromLTRB(expectedLeft, expectedTop, expectedRight, expectedBottom), revealed);
+    }
+
+    [Fact]
+    public void RevealedBar_LeavesARevealedBarAlone()
+    {
+        // A bar already flush to its monitor edge is unchanged: the snap is idempotent.
+        Assert.Equal(Rectangle.FromLTRB(0, 1032, 1920, 1080), PopupGeometry.RevealedBar(Rectangle.FromLTRB(0, 1032, 1920, 1080), Screen));
+        Assert.Equal(new Rectangle(0, 0, 1920, 48), PopupGeometry.RevealedBar(new Rectangle(0, 0, 1920, 48), Screen));
+        Assert.Equal(Rectangle.Empty, PopupGeometry.RevealedBar(Rectangle.Empty, Screen));
+    }
+
+    [Fact]
+    public void MovedWithBar_CarriesAButtonByTheBarsParkedToRevealedOffset()
+    {
+        var parked = Rectangle.FromLTRB(0, 1078, 1920, 1126);
+        var revealed = PopupGeometry.RevealedBar(parked, Screen);
+
+        var button = PopupGeometry.MovedWithBar(new Rectangle(897, 1078, 44, 48), parked, revealed);
+
+        Assert.Equal(new Rectangle(897, 1032, 44, 48), button);
+    }
+
+    [Fact]
+    public void ScreenForBar_PrefersContainmentThenTheSmallestNonZeroIntersection()
+    {
+        var primary = new Rectangle(0, 0, 1920, 1080);
+        var below = new Rectangle(0, 1080, 1920, 1080);
+        var screens = new[] { primary, below };
+
+        // A revealed bar is contained by its screen.
+        Assert.Equal(primary, PopupGeometry.ScreenForBar(Rectangle.FromLTRB(0, 1032, 1920, 1080), screens));
+
+        // A parked bar shows a 2px sliver on its own screen and overhangs 46px into the screen
+        // below: the smallest non-zero intersection is the sliver, so the primary wins
+        // (largest-intersection would pick the screen below and break the snap).
+        Assert.Equal(primary, PopupGeometry.ScreenForBar(Rectangle.FromLTRB(0, 1078, 1920, 1126), screens));
+
+        // Nothing intersects: empty (the caller skips the bar).
+        Assert.Equal(Rectangle.Empty, PopupGeometry.ScreenForBar(new Rectangle(-5000, -5000, 10, 10), screens));
+    }
+
+    [Fact]
+    public void GroupButtonOnARevealedBar_TestA_IsPlacedOnThatButton()
+    {
+        // Test A (placement half): a button matched on a revealed bar is placed by
+        // PlaceOnTaskbar(buttonRect): the popup rect is asserted exactly, tucked 2px under the
+        // bar and centred on the button. The mid-screen captured cursor setup is in the App-side
+        // Test A (TaskbarLocatorTests.AnchorForGroup_TestA_MidScreenCursorPlacesOnTheMatchedButton).
+        var bar = Rectangle.FromLTRB(0, 1032, 1920, 1080);
+        var button = new Rectangle(897, 1032, 44, 48);
+        var buttonCenter = button.Left + (button.Width / 2);
+
+        var location = PopupGeometry.PlaceOnTaskbar(Screen, bar, buttonCenter, ThreeApps);
+
+        Assert.Equal(new Rectangle(897 + 22 - 70, 1032 - 51 + 2, 140, 51), new Rectangle(location, ThreeApps));
+        Assert.Equal(bar.Top + 2, location.Y + ThreeApps.Height);
+    }
+
+    [Fact]
+    public void NoButtonMatch_TestB_KeepsTheCapturedCursorPlacement()
+    {
+        // Test B: an unpinned .lnk has no taskbar button anywhere; the captured cursor stays the
+        // anchor (case 4), so the popup opens above the click point exactly as before.
+        var workingArea = Rectangle.FromLTRB(0, 0, 1920, 1032); // the bar's reserved strip
+        var cursor = new Point(960, 500);
+
+        var location = PopupGeometry.Place(Screen, workingArea, cursor, ThreeApps);
+
+        Assert.Equal(new Point(960 - 70, 500 - 51 - PopupGeometry.CursorOffset), location);
+    }
+
+    [Fact]
+    public void ParkedBar_TestD_AnchorsToTheRevealedButtonRect()
+    {
+        // Test D: parked, the bar reports 1078-1126 and the button 1078-1126 (button rect mostly
+        // below the monitor edge). Placement must use the REVEALED rects, and the popup must sit
+        // fully inside the monitor with its tuck against the revealed bar.
+        var parkedBar = Rectangle.FromLTRB(0, 1078, 1920, 1126);
+        var parkedButton = new Rectangle(897, 1078, 44, 48);
+
+        var revealedBar = PopupGeometry.RevealedBar(parkedBar, Screen);
+        var revealedButton = PopupGeometry.MovedWithBar(parkedButton, parkedBar, revealedBar);
+
+        Assert.Equal(Rectangle.FromLTRB(0, 1032, 1920, 1080), revealedBar);
+        Assert.Equal(new Rectangle(897, 1032, 44, 48), revealedButton);
+
+        var location = PopupGeometry.PlaceOnTaskbar(Screen, revealedBar, revealedButton.Left + (revealedButton.Width / 2), ThreeApps);
+        var popup = new Rectangle(location, ThreeApps);
+
+        Assert.Equal(new Rectangle(849, 983, 140, 51), popup);
+        Assert.True(Screen.Contains(popup), $"{popup} must be fully inside {Screen}");
+        Assert.Equal(revealedBar.Top + 2, popup.Bottom); // tucked against the revealed bar, not the parked one
+    }
 }

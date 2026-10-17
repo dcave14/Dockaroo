@@ -146,8 +146,8 @@ internal sealed class EditorSidebar : Panel, IThemedControl
 
         var g = e.Graphics;
         var pad = LogicalToDeviceUnits(20);
-        // The logo is trimmed to its art (tall and narrow), so its height is the brand row's
-        // height. The compact (208px) sidebar uses a smaller one so the product name keeps its room.
+        // The logo is trimmed to its art, so its height is the brand row's height. The compact
+        // (208px) sidebar uses a smaller one so the product name keeps its room.
         var logoHeight = Width < LogicalToDeviceUnits(230) ? LogicalToDeviceUnits(44) : LogicalToDeviceUnits(60);
         var top = LogicalToDeviceUnits(46) - (logoHeight / 2);
         var logoWidth = 0;

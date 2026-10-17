@@ -78,6 +78,15 @@ public sealed class ThemeTokens
     public IReadOnlyList<Color> DesktopGradient => Gradients["desktopGradient"];
 
     public IReadOnlyList<Color> Waves => Gradients["waves"];
+
+    /// <summary>Taskbar-preview mockup body fill (tinted chrome, light or dark with the palette).</summary>
+    public Color PreviewStrip => Colors["previewStrip"];
+
+    /// <summary>Taskbar-preview mockup 1px edge trim.</summary>
+    public Color PreviewTrim => Colors["previewTrim"];
+
+    /// <summary>Taskbar-preview mockup selected button plate.</summary>
+    public Color PreviewPlate => Colors["previewPlate"];
 }
 
 /// <summary>One palette: display data plus light and dark tokens.</summary>
@@ -108,7 +117,7 @@ public sealed class ThemeCatalog
         "canvas", "surface", "field", "border", "text", "muted", "faint", "primary", "primaryHover",
         "primaryForeground", "selected", "selectedBorder", "danger", "warning", "sidebar",
         "sidebarSelected", "navText", "navMuted", "navLine", "titlebar", "mint", "drop", "dropBorder",
-        "slider", "iconWell",
+        "slider", "iconWell", "previewStrip", "previewTrim", "previewPlate",
     };
 
     /// <summary>Multi-stop tokens every mode must define.</summary>

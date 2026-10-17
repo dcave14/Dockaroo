@@ -38,7 +38,10 @@ come from the app itself (see [How the screenshots were made](#how-the-screensho
 - **Transparency that leaves icons alone.** The popup is a per-pixel-alpha layered window, so the
   transparency slider fades the background and the icons stay solid.
 - **Five palettes, light and dark.** Each palette has its own logo, and the editor's colours
-  follow the palette. Dark, light or follow Windows.
+  follow it: the accents carry the logo's hue (amber, blue, green, coral, gold), the surfaces tint
+  toward it in both modes — the light theme keeps its sidebar, cards and taskbar preview light and
+  tinted, never plain white or a dark panel — and the miniature preview wallpaper keeps the same
+  hue family when you switch modes. Dark, light or follow Windows.
 - **Imports the old app's groups.** Dockaroo started as a rewrite of an older taskbar-groups
   utility, and the editor can import that app's configuration.
 
@@ -67,7 +70,7 @@ The editor also has a compact layout for narrow windows.
 
 ### The logo
 
-A cyborg kangaroo with the group's apps in its pouch, in all five palettes.
+A kangaroo head with a color variation for each of the five palettes.
 
 ![The Dockaroo logo in five palettes](docs/images/logos.png)
 

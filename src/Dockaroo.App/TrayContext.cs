@@ -131,6 +131,12 @@ internal sealed class TrayContext : ApplicationContext
             return;
         }
 
+        // Off the UI thread (pipe listener or startup replay): the captured cursor can be
+        // anywhere by now (a swipe mid-handoff, a Win+N launch), so the group's own taskbar
+        // button - found cursor-independently - is the first anchor choice, ahead of the
+        // pipe thread's hit-test result.
+        request = WithGroupAnchor(request);
+
         void Show()
         {
             ShowPopup(request);
@@ -144,6 +150,27 @@ internal sealed class TrayContext : ApplicationContext
         {
             Show();
         }
+    }
+
+    /// <summary>
+    /// The anchor priority for a popup request: the group's own taskbar button (priority 1,
+    /// cursor-independent - it runs with or without a captured position; only the bar tie-break
+    /// uses the cursor) when it exists; otherwise the request's Locate chain result (the
+    /// hit-tested button, the bar-axis fallback or nothing); otherwise the captured cursor
+    /// (placement unchanged). Returns the request unchanged when it has no group name to match.
+    /// <paramref name="uia"/> is a test seam (null uses the real taskbar windows).
+    /// </summary>
+    internal static PopupRequest WithGroupAnchor(PopupRequest request, ITaskbarUia? uia = null)
+    {
+        if (string.IsNullOrWhiteSpace(request.GroupName))
+        {
+            return request;
+        }
+
+        var cursor = request.HasCursor ? request.Cursor : (Point?)null;
+        return TaskbarLocator.LocateForGroup(cursor, request.GroupName, uia) is { } anchor
+            ? request with { Taskbar = anchor }
+            : request;
     }
 
     private void BuildMenu()

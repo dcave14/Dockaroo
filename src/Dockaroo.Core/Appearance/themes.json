@@ -33,84 +33,90 @@
       ],
       "modes": {
         "light": {
-          "surface": "#FFFFFF",
+          "surface": "#FFFCF3",
           "primaryForeground": "#FFFFFF",
           "danger": "#A04747",
           "warning": "#BC8B2D",
-          "canvas": "#F2F7FA",
-          "field": "#FAFCFE",
-          "border": "#DCE6EE",
-          "text": "#182D3F",
-          "muted": "#62778A",
-          "faint": "#8193A1",
-          "primary": "#0876AD",
-          "primaryHover": "#075F8B",
-          "selected": "#E7F3FC",
-          "selectedBorder": "#A7CDE6",
-          "sidebar": "#102A43",
-          "sidebarSelected": "#264C68",
-          "mint": "#A9DBF3",
-          "titlebar": "#EAF1F7",
+          "canvas": "#FAF4E6",
+          "field": "#F7EEDC",
+          "border": "#AC9160",
+          "text": "#2B2416",
+          "muted": "#6E6250",
+          "faint": "#94866E",
+          "primary": "#946A00",
+          "primaryHover": "#7A5700",
+          "selected": "#F8EED2",
+          "selectedBorder": "#D9B96B",
+          "sidebar": "#F3E8CF",
+          "sidebarSelected": "#E4D2A8",
+          "mint": "#EFDCA9",
+          "titlebar": "#F5EFE0",
           "sidebarGradient": [
-            "#153B5B",
-            "#102A43"
+            "#FBF6EA",
+            "#F3E8CF"
           ],
           "desktopGradient": [
-            "#76CADC",
-            "#2F82AF"
+            "#E3BE6E",
+            "#A97B2E"
           ],
           "waves": [
-            "#449BB7",
-            "#24799F",
-            "#195B7A"
+            "#C79E4E",
+            "#A97F35",
+            "#7E5C22"
           ],
-          "drop": "#FAFCFE",
-          "dropBorder": "#DCE6EE",
-          "slider": "#DCE6EE",
-          "iconWell": "#E7F3FC",
-          "navText": "#E6EEF1",
-          "navMuted": "#B5C5CF",
-          "navLine": "#264C68"
+          "drop": "#F7EEDC",
+          "dropBorder": "#AC9160",
+          "slider": "#E6DCC4",
+          "iconWell": "#F8EED2",
+          "navText": "#2B2416",
+          "navMuted": "#6E6250",
+          "navLine": "#D8C7A0",
+          "previewStrip": "#F5EEDD",
+          "previewTrim": "#E6DBC2",
+          "previewPlate": "#FFFCF2"
         },
         "dark": {
-          "surface": "#192735",
-          "primaryForeground": "#0C293B",
+          "surface": "#2A2418",
+          "primaryForeground": "#332506",
           "danger": "#F0AEAA",
           "warning": "#D9B76B",
-          "canvas": "#0E1720",
-          "field": "#111E2B",
-          "border": "#2D455B",
-          "text": "#E4EEF6",
-          "muted": "#A0B5C7",
-          "primary": "#76C9ED",
-          "primaryHover": "#94D8F4",
-          "selected": "#213C50",
-          "selectedBorder": "#3B6884",
-          "sidebar": "#091B2A",
-          "sidebarSelected": "#203E55",
-          "mint": "#B5E5F8",
-          "titlebar": "#132230",
+          "canvas": "#1C1810",
+          "field": "#211C13",
+          "border": "#4F4534",
+          "text": "#F3EDDF",
+          "muted": "#C4B9A4",
+          "primary": "#E9C56A",
+          "primaryHover": "#F0D38C",
+          "selected": "#46391F",
+          "selectedBorder": "#7A6533",
+          "sidebar": "#1F1A11",
+          "sidebarSelected": "#3D321D",
+          "mint": "#EFDCA9",
+          "titlebar": "#262117",
           "sidebarGradient": [
-            "#102A40",
-            "#091B2A"
+            "#332A1A",
+            "#1F1A11"
           ],
           "desktopGradient": [
-            "#315F7A",
-            "#1E4767"
+            "#7A5F2E",
+            "#4E3D1F"
           ],
           "waves": [
-            "#2E6480",
-            "#235370",
-            "#1A3D55"
+            "#6B5527",
+            "#57431F",
+            "#3E2F14"
           ],
-          "drop": "#111E2B",
-          "dropBorder": "#2D455B",
-          "slider": "#2D455B",
-          "iconWell": "#213C50",
-          "faint": "#A0B5C7",
-          "navText": "#E6EEF1",
-          "navMuted": "#B5C5CF",
-          "navLine": "#203E55"
+          "drop": "#211C13",
+          "dropBorder": "#4F4534",
+          "slider": "#4F4534",
+          "iconWell": "#46391F",
+          "faint": "#A2957D",
+          "navText": "#F1EBDD",
+          "navMuted": "#C3B79F",
+          "navLine": "#3D321D",
+          "previewStrip": "#24211B",
+          "previewTrim": "#45423A",
+          "previewPlate": "#312E27"
         }
       },
       "assets": {
@@ -131,27 +137,27 @@
       ],
       "modes": {
         "light": {
-          "surface": "#FFFFFF",
+          "surface": "#F2F7FE",
           "primaryForeground": "#FFFFFF",
           "danger": "#A04747",
           "warning": "#BC8B2D",
-          "canvas": "#F3F5FB",
-          "field": "#FAFBFF",
-          "border": "#DEE4F1",
+          "canvas": "#E9EFFA",
+          "field": "#E4ECFA",
+          "border": "#8694B9",
           "text": "#1A2848",
-          "muted": "#65718B",
+          "muted": "#626E88",
           "primary": "#3156BE",
           "primaryHover": "#25449E",
           "selected": "#EAF0FF",
           "selectedBorder": "#B6C6F3",
-          "sidebar": "#102047",
-          "sidebarSelected": "#30477B",
+          "sidebar": "#E2EBF8",
+          "sidebarSelected": "#BDD2EF",
           "mint": "#AEC7FF",
-          "navMuted": "#A4B8DE",
+          "navMuted": "#626E88",
           "titlebar": "#EBEFF8",
           "sidebarGradient": [
-            "#172D61",
-            "#102047"
+            "#F0F5FD",
+            "#E2EBF8"
           ],
           "desktopGradient": [
             "#86B5E7",
@@ -162,13 +168,16 @@
             "#3B68AB",
             "#294A7B"
           ],
-          "drop": "#FAFBFF",
-          "dropBorder": "#DEE4F1",
+          "drop": "#E4ECFA",
+          "dropBorder": "#8694B9",
           "slider": "#DEE4F1",
           "iconWell": "#EAF0FF",
           "faint": "#65718B",
-          "navText": "#E6EEF1",
-          "navLine": "#30477B"
+          "navText": "#1A2848",
+          "navLine": "#C5D4EC",
+          "previewStrip": "#EEF3FB",
+          "previewTrim": "#DCE4F2",
+          "previewPlate": "#F3F8FE"
         },
         "dark": {
           "surface": "#1C2438",
@@ -208,7 +217,10 @@
           "iconWell": "#283B5D",
           "faint": "#ADB9D4",
           "navText": "#E6EEF1",
-          "navLine": "#253858"
+          "navLine": "#253858",
+          "previewStrip": "#1C2029",
+          "previewTrim": "#3E4453",
+          "previewPlate": "#2A3040"
         }
       },
       "assets": {
@@ -229,34 +241,34 @@
       ],
       "modes": {
         "light": {
-          "surface": "#FFFFFF",
+          "surface": "#EDF9F1",
           "primaryForeground": "#FFFFFF",
           "danger": "#A04747",
           "warning": "#BC8B2D",
-          "canvas": "#F3F7F5",
-          "field": "#FBFDFC",
-          "border": "#DCE7E1",
+          "canvas": "#E8F4EC",
+          "field": "#E4F3EA",
+          "border": "#7F9987",
           "text": "#172D29",
-          "muted": "#60776F",
+          "muted": "#5C7268",
           "faint": "#8CA198",
-          "primary": "#117E76",
-          "primaryHover": "#0B6B64",
+          "primary": "#0F7A6E",
+          "primaryHover": "#0A6658",
           "selected": "#E8F6F0",
           "selectedBorder": "#A7D9CB",
-          "sidebar": "#153F38",
-          "sidebarSelected": "#2B5A50",
+          "sidebar": "#DEEDE4",
+          "sidebarSelected": "#BCE0CB",
           "mint": "#A8E5CF",
-          "navText": "#D2E8DE",
-          "navMuted": "#9CC6B6",
-          "navLine": "#386459",
-          "titlebar": "#EDF4F1",
+          "navText": "#172D29",
+          "navMuted": "#5C7268",
+          "navLine": "#C7DFD3",
+          "titlebar": "#E7F1EC",
           "iconWell": "#E1F3EB",
-          "drop": "#F8FBF9",
-          "dropBorder": "#BCCFC5",
+          "drop": "#E4F3EA",
+          "dropBorder": "#7E9785",
           "slider": "#D8E5DF",
           "sidebarGradient": [
-            "#194D43",
-            "#123A34"
+            "#EBF7EF",
+            "#DEEDE4"
           ],
           "desktopGradient": [
             "#79D3C4",
@@ -266,7 +278,10 @@
             "#309AA8",
             "#167B92",
             "#145D73"
-          ]
+          ],
+          "previewStrip": "#EBF6EF",
+          "previewTrim": "#D8E9DF",
+          "previewPlate": "#EFFAF3"
         },
         "dark": {
           "surface": "#1C2922",
@@ -306,7 +321,10 @@
             "#14586C",
             "#123E50"
           ],
-          "navText": "#E6EEF1"
+          "navText": "#E6EEF1",
+          "previewStrip": "#1B241F",
+          "previewTrim": "#3A4740",
+          "previewPlate": "#27332C"
         }
       },
       "assets": {
@@ -327,44 +345,47 @@
       ],
       "modes": {
         "light": {
-          "surface": "#FFFFFF",
+          "surface": "#FFF5F0",
           "primaryForeground": "#FFFFFF",
           "danger": "#A04747",
           "warning": "#BC8B2D",
-          "canvas": "#FBF4F2",
-          "field": "#FFFBFA",
-          "border": "#ECDDDA",
+          "canvas": "#FAEFEA",
+          "field": "#F6EBE5",
+          "border": "#AF8C84",
           "text": "#432B2F",
           "muted": "#83676D",
-          "primary": "#A44A45",
-          "primaryHover": "#893C38",
+          "primary": "#A64B3C",
+          "primaryHover": "#8A3E32",
           "selected": "#FAE8E4",
           "selectedBorder": "#E4BEB6",
-          "sidebar": "#432A34",
-          "sidebarSelected": "#7C515B",
+          "sidebar": "#F7E3DD",
+          "sidebarSelected": "#EDBCB2",
           "mint": "#F3C6BC",
-          "navText": "#F2E0E2",
-          "navMuted": "#D7B7BC",
+          "navText": "#432B2F",
+          "navMuted": "#83676D",
           "titlebar": "#F6EBE8",
           "sidebarGradient": [
-            "#5F3943",
-            "#432A34"
+            "#FDF2EE",
+            "#F7E3DD"
           ],
           "desktopGradient": [
-            "#EAB4A2",
-            "#BF7C84"
+            "#E8B9C0",
+            "#C98B9F"
           ],
           "waves": [
-            "#D39389",
-            "#B9747A",
-            "#8E5664"
+            "#CE94A2",
+            "#B87C8D",
+            "#9E6479"
           ],
-          "drop": "#FFFBFA",
-          "dropBorder": "#ECDDDA",
+          "drop": "#F6EBE5",
+          "dropBorder": "#AF8C84",
           "slider": "#ECDDDA",
           "iconWell": "#FAE8E4",
           "faint": "#83676D",
-          "navLine": "#7C515B"
+          "navLine": "#E2C9C3",
+          "previewStrip": "#F8EFEB",
+          "previewTrim": "#E9D6D0",
+          "previewPlate": "#FDF5F2"
         },
         "dark": {
           "surface": "#302326",
@@ -404,7 +425,10 @@
           "slider": "#503A40",
           "iconWell": "#4A3034",
           "faint": "#C7AAAF",
-          "navLine": "#4B303A"
+          "navLine": "#4B303A",
+          "previewStrip": "#261D1B",
+          "previewTrim": "#463B37",
+          "previewPlate": "#322522"
         }
       },
       "assets": {
@@ -425,44 +449,47 @@
       ],
       "modes": {
         "light": {
-          "surface": "#FFFFFF",
+          "surface": "#FBF9EF",
           "primaryForeground": "#FFFFFF",
           "danger": "#A04747",
           "warning": "#BC8B2D",
-          "canvas": "#F7F6F2",
-          "field": "#FCFBF7",
-          "border": "#E5DFCF",
+          "canvas": "#F5F2E8",
+          "field": "#F3F0E3",
+          "border": "#9F9474",
           "text": "#38352B",
-          "muted": "#7B7361",
+          "muted": "#736B59",
           "primary": "#826315",
           "primaryHover": "#6D520E",
           "selected": "#F7EFCF",
           "selectedBorder": "#DEC990",
-          "sidebar": "#2A2B31",
-          "sidebarSelected": "#54514B",
+          "sidebar": "#F0E9D2",
+          "sidebarSelected": "#E3D6B4",
           "mint": "#E6CF91",
-          "navText": "#EEE9DD",
-          "navMuted": "#C6BFAF",
-          "titlebar": "#EFEDE5",
+          "navText": "#38352B",
+          "navMuted": "#736B59",
+          "titlebar": "#EEECE0",
           "sidebarGradient": [
-            "#3B3B41",
-            "#2A2B31"
+            "#FBF7E8",
+            "#F0E9D2"
           ],
           "desktopGradient": [
             "#CFBE89",
-            "#888877"
+            "#9FA2BA"
           ],
           "waves": [
             "#B5A781",
             "#8D8772",
-            "#6B6A63"
+            "#78788A"
           ],
-          "drop": "#FCFBF7",
-          "dropBorder": "#E5DFCF",
+          "drop": "#F3F0E3",
+          "dropBorder": "#9F9474",
           "slider": "#E5DFCF",
           "iconWell": "#F7EFCF",
           "faint": "#7B7361",
-          "navLine": "#54514B"
+          "navLine": "#DCD1B3",
+          "previewStrip": "#F5F0DF",
+          "previewTrim": "#E4DCC4",
+          "previewPlate": "#FCF8EA"
         },
         "dark": {
           "surface": "#252529",
@@ -502,7 +529,10 @@
           "slider": "#424248",
           "iconWell": "#403A28",
           "faint": "#BBB4A5",
-          "navLine": "#36332B"
+          "navLine": "#36332B",
+          "previewStrip": "#24221C",
+          "previewTrim": "#44423B",
+          "previewPlate": "#33302A"
         }
       },
       "assets": {

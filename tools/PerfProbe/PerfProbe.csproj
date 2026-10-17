@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Perf measurement harness (.opencode/tasks/perf-audit.md round 1, TESTING.md). Not part of
+       Dockaroo.sln; build the solution in Release first, then run this project with a report
+       file path as its argument. Console subsystem (OutputType Exe) because the metric lines
+       must reach stdout; the terminal runs it hidden per TESTING.md. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Dockaroo.Core">
+      <HintPath>..\..\src\Dockaroo.App\bin\Release\net9.0-windows\Dockaroo.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Dockaroo">
+      <HintPath>..\..\src\Dockaroo.App\bin\Release\net9.0-windows\Dockaroo.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -387,6 +387,98 @@ public static class PopupGeometry
         return bar.Left + (bar.Width / 2) < screenCenter.X ? TaskbarEdge.Left : TaskbarEdge.Right;
     }
 
+    /// <summary>
+    /// The revealed form of a taskbar rectangle: a parked auto-hide bar reports its window rect
+    /// as a sliver off the monitor edge (measured 46px below the revealed bar on a 1080p bottom
+    /// bar while parked), because Windows slides the whole window away instead of hiding it.
+    /// The side the rect overhangs is the edge the bar is docked to (pick the right monitor
+    /// with <see cref="ScreenForBar"/> first); the rectangle is snapped flush to that edge,
+    /// same size. A fully contained (revealed) bar is already flush and comes back unchanged.
+    /// </summary>
+    public static Rectangle RevealedBar(Rectangle bar, Rectangle screenBounds)
+    {
+        if (bar.IsEmpty || screenBounds.IsEmpty)
+        {
+            return bar;
+        }
+
+        if (bar.Bottom > screenBounds.Bottom)
+        {
+            return new Rectangle(bar.X, screenBounds.Bottom - bar.Height, bar.Width, bar.Height);
+        }
+
+        if (bar.Top < screenBounds.Top)
+        {
+            return new Rectangle(bar.X, screenBounds.Top, bar.Width, bar.Height);
+        }
+
+        if (bar.Left < screenBounds.Left)
+        {
+            return new Rectangle(screenBounds.Left, bar.Y, bar.Width, bar.Height);
+        }
+
+        if (bar.Right > screenBounds.Right)
+        {
+            return new Rectangle(screenBounds.Right - bar.Width, bar.Y, bar.Width, bar.Height);
+        }
+
+        return bar;
+    }
+
+    /// <summary>
+    /// The monitor a taskbar rectangle belongs to: the screen that contains the rect when one
+    /// does (a revealed bar), else the screen with the smallest non-zero intersection. A parked
+    /// auto-hide bar shows a 2px sliver on its own monitor while its 46px overhang reaches into
+    /// the neighbour, so the usual largest-intersection pick resolves it to the NEIGHBOUR on a
+    /// stacked-monitor layout - the snap then goes to the wrong edge and the popup falls back to
+    /// the cursor. Empty when no screen intersects the rect.
+    /// </summary>
+    public static Rectangle ScreenForBar(Rectangle bar, IReadOnlyList<Rectangle> screens)
+    {
+        ArgumentNullException.ThrowIfNull(screens);
+        if (bar.IsEmpty)
+        {
+            return Rectangle.Empty;
+        }
+
+        foreach (var screen in screens)
+        {
+            if (screen.Contains(bar))
+            {
+                return screen;
+            }
+        }
+
+        var best = Rectangle.Empty;
+        var bestArea = long.MaxValue;
+        foreach (var screen in screens)
+        {
+            var overlap = Rectangle.Intersect(bar, screen);
+            var area = (long)overlap.Width * overlap.Height;
+            if (area > 0 && area < bestArea)
+            {
+                best = screen;
+                bestArea = area;
+            }
+        }
+
+        return best;
+    }
+
+    /// <summary>
+    /// A rectangle carried by a bar's parked -> revealed move (<see cref="RevealedBar"/>): the
+    /// same offset inside the bar, reapplied to the revealed bar. Brings a button's rect - and
+    /// so its centre along the bar - up with its bar without touching its size.
+    /// </summary>
+    public static Rectangle MovedWithBar(Rectangle part, Rectangle parkedBar, Rectangle revealedBar)
+    {
+        return new Rectangle(
+            revealedBar.Left + (part.Left - parkedBar.Left),
+            revealedBar.Top + (part.Top - parkedBar.Top),
+            part.Width,
+            part.Height);
+    }
+
     private static int ClampAxis(int position, int length, int min, int max, int edgeOffset)
     {
         if (position < min)

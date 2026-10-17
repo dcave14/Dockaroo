@@ -19,7 +19,7 @@ public sealed class PaletteLogosTests
         Assert.Equal(new Size(44, 44), logo.Size);
         Assert.True(RowHasInk(logo, 0), $"{palette}: top row is empty, the art does not fill the height");
         Assert.True(RowHasInk(logo, 43), $"{palette}: bottom row is empty, the art does not fill the height");
-        // The kangaroo is tall and narrow, so the sides of the square stay clear.
+        // The head art is taller than wide, so the sides of the square stay clear.
         Assert.False(ColumnHasInk(logo, 0), $"{palette}: left column has ink");
         Assert.False(ColumnHasInk(logo, 43), $"{palette}: right column has ink");
     }
@@ -30,7 +30,8 @@ public sealed class PaletteLogosTests
         var logo = PaletteLogos.Fitted("mint", 60);
 
         Assert.Equal(60, logo.Height);
-        Assert.InRange(logo.Width, 36, 48);
+        // The head art is near-square (833 x 901 of the master canvas), so 60 px tall is ~55 wide.
+        Assert.InRange(logo.Width, 50, 58);
         Assert.True(ColumnHasInk(logo, 0), "left edge is not the art's edge");
         Assert.True(ColumnHasInk(logo, logo.Width - 1), "right edge is not the art's edge");
         Assert.True(RowHasInk(logo, 0), "top edge is not the art's edge");
@@ -84,14 +85,34 @@ public sealed class PaletteLogosTests
     [InlineData("mint")]
     [InlineData("coral")]
     [InlineData("graphite-gold")]
-    public void ShippedIcons_AreCroppedTightToTheArt(string palette)
+    public void ShippedIcons_ExistAndDecodeToTheHeadArt(string palette)
     {
-        using var stream = typeof(PaletteLogos).Assembly.GetManifestResourceStream($"Dockaroo.App.Palettes.logo-{palette}.ico")!;
+        using var stream = typeof(PaletteLogos).Assembly.GetManifestResourceStream($"Dockaroo.App.Palettes.logo-{palette}.ico");
+        Assert.NotNull(stream);
         using var bitmap = PaletteLogos.LargestFrame(stream);
 
         Assert.Equal(new Size(256, 256), bitmap.Size);
-        // Tight square crop: the kangaroo spans at least 95% of the frame height.
-        Assert.True(PaletteLogos.ArtBounds(bitmap).Height >= 243, $"{palette}: art is only {PaletteLogos.ArtBounds(bitmap).Height}px of 256");
+
+        // Non-empty image: the head's solid ink covers a large part of the frame (~16% of the
+        // 256 px frame is at least half opaque; the master canvas keeps wide transparent margins).
+        var opaque = 0;
+        for (var y = 0; y < bitmap.Height; y++)
+        {
+            for (var x = 0; x < bitmap.Width; x++)
+            {
+                if (bitmap.GetPixel(x, y).A >= 128)
+                {
+                    opaque++;
+                }
+            }
+        }
+
+        Assert.True(opaque > 5000, $"{palette}: only {opaque} solid pixels of {bitmap.Width * bitmap.Height}");
+
+        // The gold-kangaroo exports keep the master canvas margins; the head still spans well
+        // over half of the frame in each direction (the 256 px frame is not tightly cropped).
+        var art = PaletteLogos.ArtBounds(bitmap);
+        Assert.True(art.Width >= 150 && art.Height >= 150, $"{palette}: art is only {art.Width}x{art.Height}px of 256");
     }
 
     [Fact]

@@ -9,7 +9,7 @@ namespace Dockaroo.App.Appearance;
 /// Crisp palette logos for the editor at any pixel size. <see cref="Icon"/> frames are only sharp
 /// at their own sizes (16..256); drawing one at 44 or 55 px stretches the nearest frame. These
 /// bitmaps are resampled once from the 256 px frame (bicubic), with the transparent margin
-/// trimmed so the tall kangaroo fills its height. Cached per thread (GDI+ bitmaps must not be
+/// trimmed so the kangaroo head fills its height. Cached per thread (GDI+ bitmaps must not be
 /// drawn from two threads at once; the app draws on its one UI thread, tests use many); callers
 /// never dispose.
 /// </summary>
@@ -18,11 +18,13 @@ internal static class PaletteLogos
     private const string ResourcePrefix = "Dockaroo.App.Palettes.logo-";
 
     /// <summary>
-    /// Where the kangaroo reads as centred, as a fraction of the art height from its top: the
-    /// head-to-feet middle. The thin dark ears (top ~13%) barely show on the dark sidebar, so text
-    /// centred on the full art box looks high. Measured on the 1024 px render, 2026-10-16.
+    /// Where the kangaroo reads as centred, as a fraction of the art height from its top: the eye
+    /// line, the optical centre of a face. The thin ear tips at the very top barely carry weight,
+    /// so text centred on the full art box looks high. Derived from the gold-kangaroo master
+    /// (2026-10-17): the art spans y 162..1063 and the eye cutout y 633..798 of the 1254 canvas,
+    /// so the eye centre sits at (715 - 162) / 901 = 0.614.
     /// </summary>
-    public const double VisualCentre = 0.565;
+    public const double VisualCentre = 0.614;
 
     [ThreadStatic]
     private static Dictionary<(string Palette, int Size, bool Square), Bitmap>? ThreadCache;

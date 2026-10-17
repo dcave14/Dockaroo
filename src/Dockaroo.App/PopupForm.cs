@@ -94,23 +94,53 @@ internal sealed partial class PopupForm : Form
         ClientSize = popupSize;
         _barWindow = taskbar?.BarWindow ?? IntPtr.Zero;
 
-        // A taskbar click: on the bar (tucked under it), centred on the clicked button.
-        // Anything else keeps the cursor-based placement.
-        if (taskbar is { } bar && screen.Bounds.IntersectsWith(bar.Bar))
-        {
-            Location = PopupGeometry.PlaceOnTaskbar(screen.Bounds, bar.Bar, bar.ButtonCenter, popupSize, _metrics);
+        // A matched taskbar bar wins: the popup goes on the screen that contains (else best
+        // intersects) the BAR, never on the captured cursor's screen - a fast cross-monitor
+        // swipe must not drop an already-matched button (F-027). Without a match the cursor's
+        // screen decides, as before.
+        IReadOnlyList<Rectangle> screens = taskbar is null
+            ? Array.Empty<Rectangle>()
+            : Screen.AllScreens.Select(s => s.Bounds).ToList();
+        var (location, barScreen) = PlaceForAnchor(
+            anchor, screen.Bounds, screen.WorkingArea, popupSize, _metrics, taskbar, screens);
+        Location = location;
 
+        if (taskbar is { } bar && !barScreen.IsEmpty)
+        {
             // The strip that sits under the bar is cut out of the window itself, so the bar's own
             // trim is the only line there - even if Windows raises the popup above the taskbar.
-            var edge = PopupGeometry.EdgeOfBar(screen.Bounds, bar.Bar);
+            var edge = PopupGeometry.EdgeOfBar(barScreen, bar.Bar);
             _tuckClip = PopupGeometry.VisibleWhenTucked(popupSize, edge, _metrics);
             ApplyTuckClip(true);
             StartBarWatch();
         }
-        else
+    }
+
+    /// <summary>
+    /// The popup location for the captured anchor: a matched taskbar bar wins - the popup is
+    /// placed on the screen that contains the bar, else on the screen with the smallest non-zero
+    /// intersection (<see cref="PopupGeometry.ScreenForBar"/>), never on the captured cursor's
+    /// screen. Without a match - or when no screen intersects the bar - the cursor's screen places
+    /// it. <c>BarScreen</c> is <see cref="Rectangle.Empty"/> for the cursor path. Pure, so the
+    /// rule is unit-testable with fake monitors (F-027).
+    /// </summary>
+    internal static (Point Location, Rectangle BarScreen) PlaceForAnchor(
+        Point anchor,
+        Rectangle cursorScreenBounds,
+        Rectangle cursorWorkingArea,
+        Size popupSize,
+        PopupMetrics metrics,
+        TaskbarAnchor? taskbar,
+        IReadOnlyList<Rectangle> screens)
+    {
+        if (taskbar is { } bar && PopupGeometry.ScreenForBar(bar.Bar, screens) is { IsEmpty: false } barScreen)
         {
-            Location = PopupGeometry.Place(screen.Bounds, screen.WorkingArea, anchor, popupSize, _metrics);
+            var location = PopupGeometry.PlaceOnTaskbar(barScreen, bar.Bar, bar.ButtonCenter, popupSize, metrics);
+            return (location, barScreen);
         }
+
+        var cursorLocation = PopupGeometry.Place(cursorScreenBounds, cursorWorkingArea, anchor, popupSize, metrics);
+        return (cursorLocation, Rectangle.Empty);
     }
 
     /// <summary>

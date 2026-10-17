@@ -24,7 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- One logo per app palette (design handoff); logo-mint.ico is identical to app-icon.ico. -->
+    <!-- One logo per app palette (the gold-kangaroo head set); logo-mint.ico is identical to
+         app-icon.ico. -->
     <EmbeddedResource Include="Assets\Palettes\logo-*.ico" LogicalName="Dockaroo.App.Palettes.%(Filename)%(Extension)" />
   </ItemGroup>
 

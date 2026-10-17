@@ -162,8 +162,9 @@ public sealed class ThemeServiceTests : IDisposable
                 }
             }
 
-            // Real art, not an empty frame (the kangaroo leaves transparent margins: ~22-25% opaque).
-            Assert.True(opaque > 48 * 48 / 10, $"{palette.Id}: only {opaque} opaque pixels");
+            // Real art, not an empty frame (the kangaroo head leaves transparent margins: ~7%
+            // of the 48 px frame is fully opaque). Measured on the gold-kangaroo mint export.
+            Assert.True(opaque > 100, $"{palette.Id}: only {opaque} opaque pixels");
 
             // Each palette is its own art: it differs from mint unless it is mint.
             using var mint = theme.GetIcon("mint", new Size(48, 48)).ToBitmap();
