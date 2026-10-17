@@ -66,7 +66,7 @@ One choice sets the app logo, accents and surfaces, and the tray icon follows it
 
 The editor also has a compact layout for narrow windows.
 
-![Appearance page, Coral, dark, compact window](docs/images/appearance-compact.png)
+![Appearance page, Coral, dark, compact window](docs/images/appearance-compact-head.png)
 
 ### The logo
 
